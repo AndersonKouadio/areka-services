@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── AUTH (Better-Auth) ─────────────────────────────────────
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  name          String?
+  role          UserRole @default(ADMIN)
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+
+  @@map("user")
+}
+
+enum UserRole {
+  ADMIN
+  SUPER_ADMIN
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("verification")
+}
+
+// ── DOMAIN: RENDEZ-VOUS ────────────────────────────────────
+
+model RendezVous {
+  id              String           @id @default(cuid())
+  reference       String           @unique // AREKA-MMYY-XXXXXX
+
+  // Client (sans relation User — RDV publics, pas d'auth client)
+  clientNom       String
+  clientPrenom    String
+  clientEmail     String
+  clientTelephone String
+  clientAdresse   String
+
+  // RDV
+  type            TypeIntervention
+  description     String?
+  dateRDV         DateTime
+  creneau         String           // "8h30-9h30", "9h30-10h30", etc.
+
+  statut          StatutRDV        @default(EN_ATTENTE)
+  source          SourceRDV        @default(FORMULAIRE)
+
+  // Admin
+  notesAdmin      String?
+  motifRefus      String?
+  datePropose     DateTime?
+  creneauPropose  String?
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([dateRDV])
+  @@index([statut])
+  @@index([type])
+  @@map("rendez_vous")
+}
+
+enum TypeIntervention {
+  ENTRETIEN
+  DEPANNAGE
+  PANNE_URGENTE
+}
+
+enum StatutRDV {
+  EN_ATTENTE
+  CONFIRME
+  REFUSE
+  PROPOSE_AUTRE_DATE
+  TERMINE
+  ANNULE
+}
+
+enum SourceRDV {
+  FORMULAIRE
+  MANUEL
+}
+
+// ── DOMAIN: PLANNING (module dynamique) ────────────────────
+
+/// Configuration récurrente du planning hebdomadaire (1 record par jour de semaine).
+/// jourSemaine : 0=dimanche, 1=lundi, ..., 6=samedi (cf. Date.getDay()).
+model Planning {
+  id          String   @id @default(cuid())
+  jourSemaine Int      @unique
+  actif       Boolean  @default(true)
+  creneaux    String[] // ["8h30-9h30", "9h30-10h30", ...]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([jourSemaine])
+  @@map("planning")
+}
+
+/// Override ponctuel pour une date donnée (vacances, jour férié, permanence exceptionnelle).
+/// Si actif=false : le jour est fermé (peu importe le Planning hebdomadaire).
+/// Si actif=true : utilise les créneaux ci-dessous (override du Planning hebdo).
+model JourSpecial {
+  id        String   @id @default(cuid())
+  date      DateTime @unique @db.Date
+  actif     Boolean  @default(false)
+  creneaux  String[]
+  motif     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+  @@map("jour_special")
+}

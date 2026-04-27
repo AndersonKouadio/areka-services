@@ -1,26 +1,145 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@import '@heroui/styles';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
+/* ────────────────────────────────────────────────────────────
+   Tailwind v4 — expose HeroUI tokens AND custom Areka tokens
+   ──────────────────────────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Areka brand semantics — utilisable comme bg-areka-orange, text-areka-navy, etc. */
+  --color-areka-cream: var(--areka-cream);
+  --color-areka-navy: var(--areka-navy);
+  --color-areka-orange: var(--areka-orange);
+  --color-areka-green: var(--areka-green);
+  --color-areka-raspberry: var(--areka-raspberry);
+  --color-areka-coral: var(--areka-coral);
+  --color-areka-amber: var(--areka-amber);
+
+  /* Statuts RDV (cf. cahier des charges) */
+  --color-status-entretien: var(--status-entretien);
+  --color-status-depannage: var(--status-depannage);
+  --color-status-urgence: var(--status-urgence);
+  --color-status-confirme: var(--status-confirme);
+  --color-status-attente: var(--status-attente);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ────────────────────────────────────────────────────────────
+   Override HeroUI v3 tokens — thème "Soft Artisan"
+   Voir : https://heroui.com/docs/react/getting-started/colors
+   ──────────────────────────────────────────────────────────── */
+:root,
+[data-theme='light'] {
+  /* Surfaces */
+  --background: oklch(0.97 0.01 80); /* #FAF7F2 crème ivory */
+  --foreground: oklch(0.18 0.015 50); /* #1A1612 noir chaud */
+  --surface: oklch(1 0 0); /* #FFFFFF cards */
+  --surface-foreground: oklch(0.18 0.015 50);
+  --overlay: oklch(1 0 0);
+  --overlay-foreground: oklch(0.18 0.015 50);
+
+  /* Accent = bleu marine (trust, cahier des charges) */
+  --accent: oklch(0.31 0.07 245); /* #1E3A5F */
+  --accent-foreground: oklch(0.97 0.01 80);
+  --accent-soft: oklch(0.94 0.025 245);
+  --accent-soft-foreground: oklch(0.31 0.07 245);
+
+  /* Status */
+  --success: oklch(0.72 0.21 130); /* #84CC16 vert lime logo */
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.78 0.16 85); /* #EAB308 ambre */
+  --warning-foreground: oklch(0.18 0.015 50);
+  --danger: oklch(0.55 0.22 12); /* #E11D48 framboise */
+  --danger-foreground: oklch(1 0 0);
+
+  /* Champs */
+  --field-background: oklch(1 0 0);
+  --field-foreground: oklch(0.18 0.015 50);
+  --field-placeholder: oklch(0.55 0.02 70);
+  --field-border: oklch(0.89 0.022 80); /* #EAE3D5 */
+
+  /* Misc */
+  --muted: oklch(0.94 0.018 75); /* #F4EFE6 */
+  --border: oklch(0.89 0.022 80);
+  --focus: oklch(0.69 0.18 45); /* orange focus ring */
+  --link: oklch(0.31 0.07 245);
+
+  /* ─── Areka custom tokens (en plus des HeroUI) ───────────── */
+  --areka-cream: oklch(0.97 0.01 80); /* #FAF7F2 */
+  --areka-navy: oklch(0.31 0.07 245); /* #1E3A5F */
+  --areka-orange: oklch(0.69 0.18 45); /* #F97316 */
+  --areka-green: oklch(0.72 0.21 130); /* #84CC16 */
+  --areka-raspberry: oklch(0.55 0.22 12); /* #E11D48 */
+  --areka-coral: oklch(0.62 0.22 28); /* #E63027 */
+  --areka-amber: oklch(0.78 0.16 85); /* #EAB308 */
+
+  /* Statuts RDV (cahier des charges) */
+  --status-entretien: oklch(0.31 0.07 245);
+  --status-depannage: oklch(0.69 0.18 45);
+  --status-urgence: oklch(0.55 0.22 12);
+  --status-confirme: oklch(0.72 0.21 130);
+  --status-attente: oklch(0.78 0.16 85);
+}
+
+.dark,
+[data-theme='dark'] {
+  --background: oklch(0.18 0.015 50);
+  --foreground: oklch(0.97 0.01 80);
+  --surface: oklch(0.22 0.015 50);
+  --surface-foreground: oklch(0.97 0.01 80);
+  --overlay: oklch(0.22 0.015 50);
+  --overlay-foreground: oklch(0.97 0.01 80);
+
+  --accent: oklch(0.69 0.18 45); /* orange en dark, plus visible */
+  --accent-foreground: oklch(0.18 0.015 50);
+  --accent-soft: oklch(0.32 0.08 50);
+  --accent-soft-foreground: oklch(0.97 0.01 80);
+
+  --success: oklch(0.72 0.21 130);
+  --success-foreground: oklch(0.18 0.015 50);
+  --warning: oklch(0.78 0.16 85);
+  --warning-foreground: oklch(0.18 0.015 50);
+  --danger: oklch(0.65 0.22 12);
+  --danger-foreground: oklch(1 0 0);
+
+  --field-background: oklch(0.22 0.015 50);
+  --field-foreground: oklch(0.97 0.01 80);
+  --field-placeholder: oklch(0.65 0.02 70);
+  --field-border: oklch(1 0 0 / 0.15);
+
+  --muted: oklch(0.28 0.015 50);
+  --border: oklch(1 0 0 / 0.1);
+  --focus: oklch(0.69 0.18 45);
+  --link: oklch(0.72 0.18 45);
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* Gradient signature Areka (logo orange → framboise) — pour hero CTA et QR */
+  .gradient-areka {
+    background: linear-gradient(
+      135deg,
+      oklch(0.72 0.19 50) 0%,
+      oklch(0.55 0.22 12) 100%
+    );
+  }
+
+  .text-gradient-areka {
+    background: linear-gradient(
+      135deg,
+      oklch(0.72 0.19 50) 0%,
+      oklch(0.55 0.22 12) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 }
