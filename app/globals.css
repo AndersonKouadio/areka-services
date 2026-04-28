@@ -59,15 +59,15 @@
   --overlay: oklch(1 0 0);
   --overlay-foreground: oklch(0.18 0.015 50);
 
-  /* Accent = bleu marine (trust, cahier des charges) */
-  --accent: oklch(0.31 0.07 245); /* #1E3A5F */
-  --accent-foreground: oklch(0.97 0.01 80);
-  --accent-soft: oklch(0.94 0.025 245);
-  --accent-soft-foreground: oklch(0.31 0.07 245);
+  /* Accent = vert lime du logo Areka (couleur primaire) */
+  --accent: oklch(0.72 0.21 130); /* #84CC16 vert lime logo */
+  --accent-foreground: oklch(0.18 0.015 50); /* texte sombre sur vert vif */
+  --accent-soft: oklch(0.96 0.05 130); /* vert pâle pour fonds soft */
+  --accent-soft-foreground: oklch(0.45 0.18 130); /* vert foncé pour texte sur soft */
 
   /* Status */
   --success: oklch(0.72 0.21 130); /* #84CC16 vert lime logo */
-  --success-foreground: oklch(1 0 0);
+  --success-foreground: oklch(0.18 0.015 50);
   --warning: oklch(0.78 0.16 85); /* #EAB308 ambre */
   --warning-foreground: oklch(0.18 0.015 50);
   --danger: oklch(0.55 0.22 12); /* #E11D48 framboise */
@@ -82,8 +82,8 @@
   /* Misc */
   --muted: oklch(0.94 0.018 75); /* #F4EFE6 */
   --border: oklch(0.89 0.022 80);
-  --focus: oklch(0.69 0.18 45); /* orange focus ring */
-  --link: oklch(0.31 0.07 245);
+  --focus: oklch(0.72 0.21 130); /* focus ring vert lime */
+  --link: oklch(0.45 0.18 130); /* lien vert foncé pour lisibilité */
 
   /* ─── Areka custom tokens (en plus des HeroUI) ───────────── */
   --areka-cream: oklch(0.97 0.01 80); /* #FAF7F2 */
@@ -111,10 +111,10 @@
   --overlay: oklch(0.22 0.015 50);
   --overlay-foreground: oklch(0.97 0.01 80);
 
-  --accent: oklch(0.69 0.18 45); /* orange en dark, plus visible */
+  --accent: oklch(0.78 0.21 130); /* vert lime plus saturé en dark */
   --accent-foreground: oklch(0.18 0.015 50);
-  --accent-soft: oklch(0.32 0.08 50);
-  --accent-soft-foreground: oklch(0.97 0.01 80);
+  --accent-soft: oklch(0.32 0.08 130);
+  --accent-soft-foreground: oklch(0.85 0.18 130);
 
   --success: oklch(0.72 0.21 130);
   --success-foreground: oklch(0.18 0.015 50);

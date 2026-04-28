@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { addDays, startOfDay, endOfDay } from 'date-fns';
+import type { RendezVous } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import { notifierRendezVous } from '@/features/notifications/actions/notifier-rdv.action';
 
@@ -34,7 +35,7 @@ export async function GET(request: Request) {
   });
 
   const results = await Promise.allSettled(
-    rdvs.map(async (rdv) => {
+    rdvs.map(async (rdv: RendezVous) => {
       await notifierRendezVous(rdv, 'rappel_j1');
       // Marquer comme envoyé pour éviter doublon si re-cron
       await prisma.rendezVous.update({

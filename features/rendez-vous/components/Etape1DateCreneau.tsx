@@ -51,8 +51,8 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
               className={cn(
                 'group relative flex h-12 min-w-[110px] flex-1 basis-[120px] items-center justify-center rounded-xl border-2 px-3 transition-all duration-150',
                 isActive
-                  ? 'border-areka-navy bg-areka-navy text-white shadow-md'
-                  : 'border-border bg-surface text-foreground hover:border-areka-navy/40 hover:bg-areka-navy/5 hover:shadow-sm active:scale-[0.98]'
+                  ? 'border-accent bg-accent text-accent-foreground shadow-md'
+                  : 'border-border bg-surface text-foreground hover:border-accent/50 hover:bg-accent/10 hover:shadow-sm active:scale-[0.98]'
               )}
             >
               <span className="flex items-baseline gap-1 tabular-nums">
@@ -60,7 +60,7 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
                 <span
                   className={cn(
                     'text-xs',
-                    isActive ? 'text-white/60' : 'text-foreground/40'
+                    isActive ? 'text-accent-foreground/60' : 'text-foreground/40'
                   )}
                   aria-hidden="true"
                 >
@@ -69,7 +69,7 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
                 <span
                   className={cn(
                     'text-sm font-semibold',
-                    isActive ? 'text-white' : 'text-foreground'
+                    isActive ? 'text-accent-foreground' : 'text-foreground'
                   )}
                 >
                   {fin}
@@ -78,7 +78,7 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
               {isActive && (
                 <span
                   aria-hidden="true"
-                  className="bg-white/15 absolute right-2 top-1/2 inline-flex size-5 -translate-y-1/2 items-center justify-center rounded-full"
+                  className="bg-accent-foreground/15 absolute right-2 top-1/2 inline-flex size-5 -translate-y-1/2 items-center justify-center rounded-full"
                 >
                   <Check size={12} strokeWidth={3} />
                 </span>
