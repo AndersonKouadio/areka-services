@@ -49,7 +49,7 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
               aria-pressed={isActive}
               aria-label={`Créneau de ${debut} à ${fin}`}
               className={cn(
-                'group relative flex h-12 min-w-[120px] flex-1 basis-[140px] items-center justify-center rounded-xl border-2 px-3 transition-all duration-150',
+                'group relative flex h-12 min-w-[110px] flex-1 basis-[120px] items-center justify-center rounded-xl border-2 px-3 transition-all duration-150',
                 isActive
                   ? 'border-areka-navy bg-areka-navy text-white shadow-md'
                   : 'border-border bg-surface text-foreground hover:border-areka-navy/40 hover:bg-areka-navy/5 hover:shadow-sm active:scale-[0.98]'
