@@ -7,7 +7,7 @@ import { AjouterJourSpecialModal } from './AjouterJourSpecialModal';
 import { useJoursSpeciauxListQuery } from '../queries/jour-special-list.query';
 import { useSupprimerJourSpecialMutation } from '../queries/jour-special-mutations';
 import { formaterCreneau } from '../utils/planning.utils';
-import type { JourSpecial } from '@prisma/client';
+import type { JourSpecial } from '@/features/rendez-vous/types/enums';
 
 interface Props {
   initialData: JourSpecial[];

@@ -4,11 +4,50 @@ import { Calendar } from '@heroui/react';
 import { type DateValue, getLocalTimeZone, today } from '@internationalized/date';
 import { useFormContext } from 'react-hook-form';
 import { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sun, Sunset } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCreneauxDisponiblesQuery } from '../queries/creneaux-disponibles.query';
-import { formaterCreneau } from '@/features/planning/utils/planning.utils';
 import type { CreateRendezVousDTO } from '../schemas/rendez-vous.schema';
+
+interface GroupeProps {
+  label: string;
+  creneaux: string[];
+  selected: string | undefined;
+  onSelect: (c: string) => void;
+}
+
+function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
+  const Icon = label === 'Matin' ? Sun : Sunset;
+  return (
+    <div>
+      <p className="text-foreground/60 mb-2 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider">
+        <Icon size={12} />
+        {label}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {creneaux.map((c) => {
+          const debut = c.split('-')[0];
+          const isActive = selected === c;
+          return (
+            <button
+              key={c}
+              type="button"
+              onClick={() => onSelect(c)}
+              className={cn(
+                'inline-flex h-10 min-w-[68px] items-center justify-center rounded-lg border px-3 text-sm font-medium tabular-nums whitespace-nowrap transition',
+                isActive
+                  ? 'border-areka-orange bg-areka-orange text-white shadow-sm'
+                  : 'border-border hover:border-areka-orange/60 hover:bg-areka-orange/5'
+              )}
+            >
+              {debut}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export function Etape1DateCreneau() {
   const { setValue, watch } = useFormContext<CreateRendezVousDTO>();
@@ -94,22 +133,35 @@ export function Etape1DateCreneau() {
             </p>
           )}
           {dateValue && !isLoading && data?.ouvert && data.creneaux.length > 0 && (
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {data.creneaux.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => handleCreneauClick(c)}
-                  className={cn(
-                    'rounded-lg border px-3 py-2.5 text-sm font-medium min-h-11 transition',
-                    creneauSelectionne === c
-                      ? 'border-areka-orange bg-areka-orange text-white shadow-xs'
-                      : 'border-border hover:border-areka-orange/60 hover:bg-areka-orange/5'
-                  )}
-                >
-                  {formaterCreneau(c)}
-                </button>
-              ))}
+            <div className="mt-4 space-y-4">
+              {(() => {
+                const matin = data.creneaux.filter(
+                  (c) => parseInt(c.split('h')[0], 10) < 12
+                );
+                const apresMidi = data.creneaux.filter(
+                  (c) => parseInt(c.split('h')[0], 10) >= 12
+                );
+                return (
+                  <>
+                    {matin.length > 0 && (
+                      <CreneauxGroupe
+                        label="Matin"
+                        creneaux={matin}
+                        selected={creneauSelectionne}
+                        onSelect={handleCreneauClick}
+                      />
+                    )}
+                    {apresMidi.length > 0 && (
+                      <CreneauxGroupe
+                        label="Après-midi"
+                        creneaux={apresMidi}
+                        selected={creneauSelectionne}
+                        onSelect={handleCreneauClick}
+                      />
+                    )}
+                  </>
+                );
+              })()}
             </div>
           )}
         </div>

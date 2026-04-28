@@ -6,7 +6,7 @@ import { Save, Loader2, Check } from 'lucide-react';
 import { CreneauInput } from './CreneauInput';
 import { useModifierPlanningJourMutation } from '../queries/planning-update.mutation';
 import { LIBELLES_JOURS } from '../types/planning.type';
-import type { Planning } from '@prisma/client';
+import type { Planning } from '@/features/rendez-vous/types/enums';
 
 interface Props {
   planning: Planning;

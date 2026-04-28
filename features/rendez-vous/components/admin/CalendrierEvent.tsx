@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { TypeIntervention, StatutRDV } from '@prisma/client';
+import { TypeIntervention, StatutRDV } from '@/features/rendez-vous/types/enums';
 import { formaterCreneau } from '@/features/planning/utils/planning.utils';
-import type { RendezVous } from '@prisma/client';
+import type { RendezVous } from '@/features/rendez-vous/types/enums';
 
 interface Props {
   rdv: RendezVous;

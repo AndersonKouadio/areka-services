@@ -10,7 +10,7 @@ import {
   StatutRDV,
   TypeIntervention,
   SourceRDV,
-} from '@prisma/client';
+} from '@/features/rendez-vous/types/enums';
 
 export const rendezVousFilters = {
   page: parseAsInteger.withDefault(1),

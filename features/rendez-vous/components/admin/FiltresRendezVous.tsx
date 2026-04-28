@@ -4,7 +4,7 @@ import { Search, X } from 'lucide-react';
 import { Input, SearchField, Select, ListBox, Label } from '@heroui/react';
 import { useRendezVousFilters } from '../../filters/rendez-vous.filters';
 import { LIBELLE_STATUT, LIBELLE_TYPE } from '../../utils/statut.utils';
-import { StatutRDV, TypeIntervention } from '@prisma/client';
+import { StatutRDV, TypeIntervention } from '@/features/rendez-vous/types/enums';
 
 export function FiltresRendezVous() {
   const [filters, setFilters] = useRendezVousFilters();

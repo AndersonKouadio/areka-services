@@ -4,7 +4,7 @@ import { useFormContext } from 'react-hook-form';
 import { TextArea, Label, FieldError } from '@heroui/react';
 import { Wrench, Flame, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { TypeIntervention } from '@prisma/client';
+import { TypeIntervention } from '@/features/rendez-vous/types/enums';
 import type { CreateRendezVousDTO } from '../schemas/rendez-vous.schema';
 
 const OPTIONS = [

@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { LIBELLE_STATUT, LIBELLE_TYPE } from '../../utils/statut.utils';
-import type { StatutRDV, TypeIntervention } from '@prisma/client';
+import type { StatutRDV, TypeIntervention } from '@/features/rendez-vous/types/enums';
 
 const STATUT_CLASSES: Record<StatutRDV, string> = {
   EN_ATTENTE: 'bg-areka-amber/15 text-areka-amber border-areka-amber/30',

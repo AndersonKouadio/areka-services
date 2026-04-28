@@ -76,7 +76,7 @@ export function FormulaireRendezVous() {
         <form onSubmit={submit} className="flex flex-col p-4 sm:p-6 md:p-8">
           <Stepper current={step} steps={STEPS} />
 
-          <div className="mt-8 min-h-[480px] flex-1">
+          <div className="mt-8 min-h-[420px] flex-1">
             {step === 1 && <Etape1DateCreneau />}
             {step === 2 && <Etape2TypeDescription />}
             {step === 3 && <Etape3Coordonnees />}

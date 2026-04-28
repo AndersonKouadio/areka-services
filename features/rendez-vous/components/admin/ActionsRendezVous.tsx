@@ -6,7 +6,7 @@ import { Check, X, CalendarClock } from 'lucide-react';
 import { ValiderModal } from './ValiderModal';
 import { RefuserModal } from './RefuserModal';
 import { ProposerDateModal } from './ProposerDateModal';
-import type { StatutRDV } from '@prisma/client';
+import type { StatutRDV } from '@/features/rendez-vous/types/enums';
 
 interface Props {
   rdvId: string;
