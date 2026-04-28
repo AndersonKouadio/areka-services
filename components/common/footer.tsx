@@ -5,7 +5,7 @@ export function Footer() {
   return (
     <footer
       id="contact"
-      className="border-border/50 bg-muted/40 mt-24 border-t"
+      className="border-border/50 bg-muted/40 border-t"
     >
       <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:px-8 py-12 md:grid-cols-3">
         <div>

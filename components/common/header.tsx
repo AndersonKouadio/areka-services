@@ -21,10 +21,10 @@ export function Header() {
           <Image
             src="/logo.png"
             alt="Areka Services"
-            width={120}
-            height={80}
+            width={180}
+            height={120}
             priority
-            className="h-9 w-auto sm:h-12"
+            className="h-12 w-auto sm:h-16"
           />
         </Link>
 

@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
-import { Sidebar } from '@/components/admin/Sidebar';
+import { AdminShell } from '@/components/admin/AdminShell';
 
 export default async function AdminLayout({
   children,
@@ -11,14 +11,13 @@ export default async function AdminLayout({
   if (!session) return null; // (protected) layout already redirects
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar
-        user={{
-          name: session.user.name ?? null,
-          email: session.user.email,
-        }}
-      />
-      <div className="flex-1 overflow-x-hidden">{children}</div>
-    </div>
+    <AdminShell
+      user={{
+        name: session.user.name ?? null,
+        email: session.user.email,
+      }}
+    >
+      {children}
+    </AdminShell>
   );
 }

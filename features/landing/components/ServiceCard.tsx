@@ -17,15 +17,15 @@ export function ServiceCard({
     raspberry: 'text-areka-raspberry bg-areka-raspberry/10',
   };
   return (
-    <Card className="border-border/50 hover:shadow-md transition border">
+    <Card className="border-border/60 hover:border-border hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 border bg-surface/90 backdrop-blur p-2">
       <Card.Header>
         <div
           className={`flex size-12 items-center justify-center rounded-xl ${tones[tone]}`}
         >
           {icon}
         </div>
-        <Card.Title className="mt-4">{title}</Card.Title>
-        <Card.Description>{desc}</Card.Description>
+        <Card.Title className="mt-5 text-xl">{title}</Card.Title>
+        <Card.Description className="mt-2 leading-relaxed text-foreground/70">{desc}</Card.Description>
       </Card.Header>
     </Card>
   );

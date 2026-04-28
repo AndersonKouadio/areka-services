@@ -41,7 +41,7 @@ export function Sidebar({ user }: SidebarProps) {
     exact ? pathname === href : pathname === href || pathname.startsWith(href + '/');
 
   return (
-    <aside className="bg-sidebar border-sidebar-border text-sidebar-foreground sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r">
+    <aside className="bg-sidebar border-sidebar-border text-sidebar-foreground sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r md:flex">
       <div className="border-sidebar-border border-b px-6 py-5">
         <Link href="/admin" className="block">
           <Image src="/logo.png" alt="Areka Services" width={120} height={80} />
