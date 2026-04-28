@@ -37,7 +37,7 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
           · {creneaux.length} dispo{creneaux.length > 1 ? 's' : ''}
         </span>
       </div>
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
         {creneaux.map((c) => {
           const [debut, fin] = c.split('-');
           const isActive = selected === c;
@@ -49,14 +49,14 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
               aria-pressed={isActive}
               aria-label={`Créneau de ${debut} à ${fin}`}
               className={cn(
-                'group relative flex h-14 items-center justify-between gap-3 rounded-xl border-2 px-4 transition-all duration-150',
+                'group relative flex h-12 items-center justify-center rounded-xl border-2 px-2 transition-all duration-150',
                 isActive
                   ? 'border-areka-navy bg-areka-navy text-white shadow-md'
                   : 'border-border bg-surface text-foreground hover:border-areka-navy/40 hover:bg-areka-navy/5 hover:shadow-sm active:scale-[0.98]'
               )}
             >
-              <span className="flex items-baseline gap-1.5 tabular-nums leading-none">
-                <span className="text-base font-semibold">{debut}</span>
+              <span className="flex items-baseline gap-1 tabular-nums">
+                <span className="text-sm font-semibold">{debut}</span>
                 <span
                   className={cn(
                     'text-xs',
@@ -64,23 +64,22 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
                   )}
                   aria-hidden="true"
                 >
-                  →
+                  —
                 </span>
                 <span
                   className={cn(
-                    'text-sm font-medium',
-                    isActive ? 'text-white/85' : 'text-foreground/70'
+                    'text-sm font-semibold',
+                    isActive ? 'text-white' : 'text-foreground'
                   )}
                 >
                   {fin}
                 </span>
               </span>
-              {isActive ? (
-                <Check size={16} strokeWidth={3} className="shrink-0" />
-              ) : (
-                <span
-                  className="border-border/60 group-hover:border-areka-navy/50 size-2 shrink-0 rounded-full border-2 transition"
-                  aria-hidden="true"
+              {isActive && (
+                <Check
+                  size={12}
+                  strokeWidth={3}
+                  className="absolute right-1.5 top-1.5"
                 />
               )}
             </button>
@@ -134,8 +133,8 @@ export function Etape1DateCreneau() {
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[320px_1fr] lg:gap-8">
-        <div className="bg-surface/60 border-border/50 rounded-2xl border p-3 sm:p-4 w-full max-w-[320px] mx-auto lg:mx-0">
+      <div className="space-y-6">
+        <div className="bg-surface/60 border-border/50 mx-auto w-full max-w-[320px] rounded-2xl border p-3 sm:p-4">
           <Calendar
             value={dateValue}
             onChange={handleDateChange}
