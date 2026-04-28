@@ -103,12 +103,18 @@ model RendezVous {
   datePropose     DateTime?
   creneauPropose  String?
 
+  // Idempotence rappel J-1 (cron)
+  rappelEnvoye    Boolean          @default(false)
+  rappelEnvoyeAt  DateTime?
+
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
   @@index([dateRDV])
   @@index([statut])
   @@index([type])
+  @@index([dateRDV, statut])
+  @@index([statut, createdAt])
   @@map("rendez_vous")
 }
 

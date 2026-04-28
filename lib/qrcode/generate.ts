@@ -47,19 +47,25 @@ export async function genererQrCodeBuffer(
     },
   });
 
-  // 2. Logo redimensionné
-  const logoTargetSize = Math.floor(size * 0.18); // 18% de la taille QR
+  // 2. Logo overlay — fallback gracieux si le fichier manque
+  const logoTargetSize = Math.floor(size * 0.18);
   const padding = Math.floor(logoTargetSize * 0.12);
   const tileSize = logoTargetSize + padding * 2;
-
   const logoPath = path.join(process.cwd(), 'public', 'icone.png');
-  const logoResized = await sharp(logoPath)
-    .resize(logoTargetSize, logoTargetSize, {
-      fit: 'contain',
-      background: { r: 255, g: 255, b: 255, alpha: 0 },
-    })
-    .png()
-    .toBuffer();
+
+  let logoResized: Buffer | null = null;
+  try {
+    logoResized = await sharp(logoPath)
+      .resize(logoTargetSize, logoTargetSize, {
+        fit: 'contain',
+        background: { r: 255, g: 255, b: 255, alpha: 0 },
+      })
+      .png()
+      .toBuffer();
+  } catch (err) {
+    console.warn('[qrcode] logo introuvable, génération sans logo overlay', err);
+    return qrBuffer;
+  }
 
   // 3. Tile blanc arrondi avec le logo au centre (pour contraste sur le QR)
   const radius = Math.floor(tileSize * 0.18);

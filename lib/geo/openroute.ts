@@ -20,12 +20,28 @@ export interface AdresseGeocodee {
 }
 
 /**
+ * Cache geocoding en mémoire (vit le temps du process serveur).
+ * Évite de re-géocoder la même adresse à chaque calcul de tournée.
+ * TTL: jamais expiré dans le process. Vidé au redémarrage.
+ */
+const geocodeCache = new Map<string, Coordinates | null>();
+
+function cacheKey(adresse: string): string {
+  return adresse.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+/**
  * Géocode une adresse FR en coordonnées (lng, lat).
  * Renvoie null si introuvable ou clé API absente.
  */
 export async function geocoderAdresse(
   adresse: string
 ): Promise<Coordinates | null> {
+  const key = cacheKey(adresse);
+  if (geocodeCache.has(key)) {
+    return geocodeCache.get(key) ?? null;
+  }
+
   const apiKey = process.env.OPENROUTESERVICE_API_KEY;
   if (!apiKey) {
     console.warn('[ors] OPENROUTESERVICE_API_KEY absente — geocoding skipped');
@@ -38,14 +54,25 @@ export async function geocoderAdresse(
       text: adresse,
       size: '1',
     });
-    const res = await fetch(`${ORS_BASE}/geocode/search?${params}`);
-    if (!res.ok) return null;
+    const res = await fetch(`${ORS_BASE}/geocode/search?${params}`, {
+      // Timeout côté ORS : pas plus de 8 s pour ne pas bloquer la route
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) {
+      geocodeCache.set(key, null);
+      return null;
+    }
     const data = (await res.json()) as {
       features?: { geometry?: { coordinates?: [number, number] } }[];
     };
     const coords = data.features?.[0]?.geometry?.coordinates;
-    if (!coords) return null;
-    return { lng: coords[0], lat: coords[1] };
+    if (!coords) {
+      geocodeCache.set(key, null);
+      return null;
+    }
+    const result = { lng: coords[0], lat: coords[1] };
+    geocodeCache.set(key, result);
+    return result;
   } catch (e) {
     console.error('[ors] geocode error', e);
     return null;

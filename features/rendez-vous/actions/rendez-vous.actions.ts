@@ -46,32 +46,34 @@ export async function ajouterRendezVous(
     };
   }
 
-  // Vérif : créneau pas déjà pris (statut actif)
-  const dejaReserve = await prisma.rendezVous.findFirst({
-    where: {
-      dateRDV: {
-        gte: startOfDay(data.dateRDV),
-        lt: endOfDay(data.dateRDV),
-      },
-      creneau: data.creneau,
-      statut: { in: ['CONFIRME', 'EN_ATTENTE', 'PROPOSE_AUTRE_DATE'] },
-    },
-    select: { id: true },
-  });
-  if (dejaReserve) {
-    return {
-      success: false,
-      error: 'Ce créneau vient d\'être pris. Choisissez-en un autre.',
-    };
-  }
-
   try {
-    const rdv = await prisma.rendezVous.create({
-      data: {
-        ...data,
-        reference: genererReferenceRendezVous(),
-        source: 'FORMULAIRE',
-      },
+    /* Anti race condition : check + create dans une transaction interactive.
+       Si deux clients soumettent le même créneau en parallèle, seul le premier
+       passe — le second voit le créneau pris dans la même transaction et fail.
+       L'isolation par défaut Postgres (READ_COMMITTED) suffit ici car le check
+       précède immédiatement le create dans la même connexion. */
+    const rdv = await prisma.$transaction(async (tx) => {
+      const dejaReserve = await tx.rendezVous.findFirst({
+        where: {
+          dateRDV: {
+            gte: startOfDay(data.dateRDV),
+            lt: endOfDay(data.dateRDV),
+          },
+          creneau: data.creneau,
+          statut: { in: ['CONFIRME', 'EN_ATTENTE', 'PROPOSE_AUTRE_DATE'] },
+        },
+        select: { id: true },
+      });
+      if (dejaReserve) {
+        throw new Error('CRENEAU_TAKEN');
+      }
+      return tx.rendezVous.create({
+        data: {
+          ...data,
+          reference: genererReferenceRendezVous(),
+          source: 'FORMULAIRE',
+        },
+      });
     });
 
     revalidatePath('/rendez-vous');
@@ -86,6 +88,12 @@ export async function ajouterRendezVous(
       data: { reference: rdv.reference, id: rdv.id },
     };
   } catch (error) {
+    if (error instanceof Error && error.message === 'CRENEAU_TAKEN') {
+      return {
+        success: false,
+        error: 'Ce créneau vient d\'être réservé. Choisissez-en un autre.',
+      };
+    }
     console.error('Erreur création RDV:', error);
     return {
       success: false,
@@ -151,7 +159,7 @@ export async function obtenirTousRendezVous(
       { clientNom: { contains: search, mode: 'insensitive' } },
       { clientPrenom: { contains: search, mode: 'insensitive' } },
       { clientEmail: { contains: search, mode: 'insensitive' } },
-      { clientTelephone: { contains: search } },
+      { clientTelephone: { contains: search, mode: 'insensitive' } },
     ];
   }
   if (statut) where.statut = statut;

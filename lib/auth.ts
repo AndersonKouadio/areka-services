@@ -12,5 +12,11 @@ export const auth = betterAuth({
     // Areka = 1 seul admin (Julien). Le seed crée le user, on bloque toute autre inscription.
     disableSignUp: true,
   },
+  // Anti brute-force : 5 tentatives par minute par IP
+  rateLimit: {
+    enabled: true,
+    window: 60,
+    max: 5,
+  },
   plugins: [nextCookies()],
 });

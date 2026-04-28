@@ -24,13 +24,34 @@ export async function validerRendezVous(
     };
   }
 
-  const rdv = await prisma.rendezVous.update({
-    where: { id },
+  /* Idempotence : ne valide QUE si EN_ATTENTE ou PROPOSE_AUTRE_DATE.
+     Le `where` filtre sur les statuts admissibles. Si le RDV a déjà été
+     traité (double-clic, refresh), updateMany retourne count=0 et on ne
+     déclenche pas de notification en double. */
+  const updated = await prisma.rendezVous.updateMany({
+    where: {
+      id,
+      statut: { in: ['EN_ATTENTE', 'PROPOSE_AUTRE_DATE'] },
+    },
     data: {
       statut: 'CONFIRME',
       notesAdmin: parsed.data.notesAdmin,
     },
   });
+
+  if (updated.count === 0) {
+    const current = await prisma.rendezVous.findUnique({
+      where: { id },
+      select: { statut: true },
+    });
+    if (!current) return { success: false, error: 'RDV introuvable' };
+    return {
+      success: false,
+      error: `RDV déjà traité (statut : ${current.statut})`,
+    };
+  }
+
+  const rdv = await prisma.rendezVous.findUniqueOrThrow({ where: { id } });
 
   notifierRendezVous(rdv, 'rdv_confirme').catch((e) =>
     console.error('[notif] rdv_confirme', e)

@@ -55,9 +55,8 @@ async function main() {
   });
 
   console.log('✅ Admin user créé / mis à jour');
-  console.log(`   Email    : ${ADMIN_EMAIL}`);
-  console.log(`   Password : ${ADMIN_PASSWORD}`);
-  console.log(`   Role     : SUPER_ADMIN`);
+  console.log(`   Email : ${ADMIN_EMAIL}`);
+  console.log(`   Role  : SUPER_ADMIN`);
 
   // ─── PLANNING HEBDO PAR DÉFAUT ──────────────────────────────────
   // Cf. cahier des charges :

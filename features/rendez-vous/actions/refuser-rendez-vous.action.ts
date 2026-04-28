@@ -24,13 +24,31 @@ export async function refuserRendezVous(
     };
   }
 
-  const rdv = await prisma.rendezVous.update({
-    where: { id },
+  // Idempotence : ne refuse QUE depuis EN_ATTENTE ou PROPOSE_AUTRE_DATE
+  const updated = await prisma.rendezVous.updateMany({
+    where: {
+      id,
+      statut: { in: ['EN_ATTENTE', 'PROPOSE_AUTRE_DATE'] },
+    },
     data: {
       statut: 'REFUSE',
       motifRefus: parsed.data.motifRefus,
     },
   });
+
+  if (updated.count === 0) {
+    const current = await prisma.rendezVous.findUnique({
+      where: { id },
+      select: { statut: true },
+    });
+    if (!current) return { success: false, error: 'RDV introuvable' };
+    return {
+      success: false,
+      error: `RDV déjà traité (statut : ${current.statut})`,
+    };
+  }
+
+  const rdv = await prisma.rendezVous.findUniqueOrThrow({ where: { id } });
 
   notifierRendezVous(rdv, 'rdv_refuse').catch((e) =>
     console.error('[notif] rdv_refuse', e)

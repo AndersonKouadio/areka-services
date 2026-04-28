@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Calendar } from '@heroui/react';
 import {
   type DateValue,
   getLocalTimeZone,
   today,
 } from '@internationalized/date';
-import { Loader2, MapPin, Clock, Phone, AlertTriangle } from 'lucide-react';
+import { Loader2, MapPin, Clock, Phone, AlertTriangle, Navigation, Mail } from 'lucide-react';
 import { calculerTourneeJour } from '../actions/calculer-tournee.action';
 import { ChipType } from '@/features/rendez-vous/components/admin/ChipStatut';
 import { formaterCreneau } from '@/features/planning/utils/planning.utils';
@@ -17,30 +18,18 @@ export function TourneeView() {
   const [dateValue, setDateValue] = useState<DateValue | null>(
     today(getLocalTimeZone())
   );
-  const [tournee, setTournee] = useState<TourneeJour | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // Auto-fetch quand la date change
-  useEffect(() => {
-    if (!dateValue) return;
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-    calculerTourneeJour(dateValue.toDate(getLocalTimeZone()))
-      .then((result) => {
-        if (!cancelled) setTournee(result);
-      })
-      .catch((e) => {
-        if (!cancelled) setError(e?.message ?? 'Erreur de chargement');
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [dateValue]);
+  const dateJS = dateValue?.toDate(getLocalTimeZone()) ?? null;
+  const dateKey = dateJS?.toISOString() ?? null;
+
+  const { data: tournee, isLoading: loading, error: queryError } = useQuery({
+    queryKey: ['tournee', dateKey],
+    queryFn: () => calculerTourneeJour(dateJS!),
+    enabled: !!dateJS,
+    staleTime: 30 * 1000,
+  });
+  const error =
+    queryError instanceof Error ? queryError.message : queryError ? 'Erreur de chargement' : null;
 
   return (
     <div className="grid gap-8 lg:grid-cols-[auto_1fr]">
@@ -134,10 +123,15 @@ function TourneeResultats({ tournee }: { tournee: TourneeJour }) {
                 <p className="text-foreground/70 mt-1 inline-flex items-center gap-1.5 text-xs">
                   <Clock size={12} /> {formaterCreneau(r.creneau)}
                 </p>
-                <p className="text-foreground/70 mt-0.5 inline-flex items-start gap-1.5 text-xs">
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.clientAdresse)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-foreground/70 hover:text-areka-orange mt-0.5 flex items-start gap-1.5 text-xs transition"
+                >
                   <MapPin size={12} className="mt-0.5 shrink-0" />
-                  {r.clientAdresse}
-                </p>
+                  <span className="break-words">{r.clientAdresse}</span>
+                </a>
                 <p className="text-foreground/70 mt-0.5 inline-flex items-center gap-1.5 text-xs">
                   <Phone size={12} />
                   <a
@@ -155,36 +149,75 @@ function TourneeResultats({ tournee }: { tournee: TourneeJour }) {
 
       {tournee.rdvs.length > 0 && (
         <ol className="space-y-2">
-          {tournee.rdvs.map((r) => (
-            <li
-              key={r.rdv.id}
-              className="bg-card border-border/50 flex items-start gap-4 rounded-xl border p-4"
-            >
-              <div className="bg-areka-navy/10 text-areka-navy flex size-10 shrink-0 items-center justify-center rounded-lg font-bold">
-                {r.ordre + 1}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-medium">
-                    {r.rdv.clientPrenom} {r.rdv.clientNom}
-                  </p>
-                  <ChipType type={r.rdv.type} />
+          {tournee.rdvs.map((r) => {
+            const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(r.rdv.clientAdresse)}`;
+            return (
+              <li
+                key={r.rdv.id}
+                className="bg-card border-border/50 flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-start sm:gap-4"
+              >
+                <div className="flex items-start gap-3 sm:contents">
+                  <div className="bg-areka-navy/10 text-areka-navy flex size-10 shrink-0 items-center justify-center rounded-lg font-bold">
+                    {r.ordre + 1}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium">
+                        {r.rdv.clientPrenom} {r.rdv.clientNom}
+                      </p>
+                      <ChipType type={r.rdv.type} />
+                    </div>
+                    <p className="text-foreground/70 mt-1 inline-flex items-center gap-1.5 text-xs">
+                      <Clock size={12} /> {formaterCreneau(r.rdv.creneau)}
+                    </p>
+                    <a
+                      href={mapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-foreground/70 hover:text-areka-orange mt-0.5 flex items-start gap-1.5 text-xs transition"
+                      title="Ouvrir dans Google Maps"
+                    >
+                      <MapPin size={12} className="mt-0.5 shrink-0" />
+                      <span className="break-words">{r.rdv.clientAdresse}</span>
+                    </a>
+                    <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
+                      <a
+                        href={`tel:${r.rdv.clientTelephone}`}
+                        className="text-areka-navy hover:text-areka-orange inline-flex items-center gap-1 font-medium transition"
+                      >
+                        <Phone size={12} />
+                        {r.rdv.clientTelephone}
+                      </a>
+                      {r.rdv.clientEmail && (
+                        <a
+                          href={`mailto:${r.rdv.clientEmail}`}
+                          className="text-foreground/70 hover:text-areka-orange inline-flex items-center gap-1 transition"
+                        >
+                          <Mail size={12} />
+                          <span className="hidden sm:inline">{r.rdv.clientEmail}</span>
+                          <span className="sm:hidden">Email</span>
+                        </a>
+                      )}
+                      <a
+                        href={mapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-areka-orange hover:underline inline-flex items-center gap-1 font-medium ml-auto"
+                      >
+                        <Navigation size={12} />
+                        Itinéraire
+                      </a>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-foreground/70 mt-1 inline-flex items-center gap-1.5 text-xs">
-                  <Clock size={12} /> {formaterCreneau(r.rdv.creneau)}
-                </p>
-                <p className="text-foreground/70 mt-0.5 inline-flex items-start gap-1.5 text-xs">
-                  <MapPin size={12} className="mt-0.5 shrink-0" />
-                  {r.rdv.clientAdresse}
-                </p>
-              </div>
-              {r.distanceDepuisPrecedent > 0 && (
-                <span className="text-areka-orange shrink-0 text-xs font-medium">
-                  +{Math.round(r.distanceDepuisPrecedent)} km
-                </span>
-              )}
-            </li>
-          ))}
+                {r.distanceDepuisPrecedent > 0 && (
+                  <span className="text-foreground/60 shrink-0 text-xs font-medium sm:self-start">
+                    +{Math.round(r.distanceDepuisPrecedent)} km
+                  </span>
+                )}
+              </li>
+            );
+          })}
         </ol>
       )}
     </div>
