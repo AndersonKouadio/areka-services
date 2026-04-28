@@ -8,7 +8,7 @@ const STATUT_CLASSES: Record<StatutRDV, string> = {
   REFUSE: 'bg-areka-coral/15 text-areka-coral border-areka-coral/30',
   PROPOSE_AUTRE_DATE: 'bg-areka-orange/15 text-areka-orange border-areka-orange/30',
   TERMINE: 'bg-areka-navy/15 text-areka-navy border-areka-navy/30',
-  ANNULE: 'bg-muted text-foreground/50 border-border',
+  ANNULE: 'bg-muted text-foreground/70 border-border line-through',
 };
 
 const TYPE_CLASSES: Record<TypeIntervention, string> = {

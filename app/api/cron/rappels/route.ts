@@ -10,8 +10,15 @@ import { notifierRendezVous } from '@/features/notifications/actions/notifier-rd
  * Sécurité : header `Authorization: Bearer ${CRON_SECRET}` (Vercel l'ajoute automatiquement).
  */
 export async function GET(request: Request) {
+  const expected = process.env.CRON_SECRET;
+  if (!expected) {
+    return NextResponse.json(
+      { error: 'Cron non configuré (CRON_SECRET manquant)' },
+      { status: 503 }
+    );
+  }
   const auth = request.headers.get('authorization');
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (auth !== `Bearer ${expected}`) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
@@ -21,11 +28,20 @@ export async function GET(request: Request) {
     where: {
       dateRDV: { gte: startOfDay(demain), lt: endOfDay(demain) },
       statut: 'CONFIRME',
+      // Idempotence : ne pas re-envoyer si déjà rappelé
+      rappelEnvoye: false,
     },
   });
 
   const results = await Promise.allSettled(
-    rdvs.map((rdv) => notifierRendezVous(rdv, 'rappel_j1'))
+    rdvs.map(async (rdv) => {
+      await notifierRendezVous(rdv, 'rappel_j1');
+      // Marquer comme envoyé pour éviter doublon si re-cron
+      await prisma.rendezVous.update({
+        where: { id: rdv.id },
+        data: { rappelEnvoye: true, rappelEnvoyeAt: new Date() },
+      });
+    })
   );
 
   const reussis = results.filter((r) => r.status === 'fulfilled').length;

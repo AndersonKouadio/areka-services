@@ -36,8 +36,12 @@ export async function proposerAutreDateRendezVous(
     };
   }
 
-  const rdv = await prisma.rendezVous.update({
-    where: { id },
+  // Idempotence : ne propose autre date QUE depuis EN_ATTENTE
+  const updated = await prisma.rendezVous.updateMany({
+    where: {
+      id,
+      statut: 'EN_ATTENTE',
+    },
     data: {
       statut: 'PROPOSE_AUTRE_DATE',
       datePropose: parsed.data.datePropose,
@@ -45,6 +49,20 @@ export async function proposerAutreDateRendezVous(
       notesAdmin: parsed.data.message,
     },
   });
+
+  if (updated.count === 0) {
+    const current = await prisma.rendezVous.findUnique({
+      where: { id },
+      select: { statut: true },
+    });
+    if (!current) return { success: false, error: 'RDV introuvable' };
+    return {
+      success: false,
+      error: `RDV déjà traité (statut : ${current.statut})`,
+    };
+  }
+
+  const rdv = await prisma.rendezVous.findUniqueOrThrow({ where: { id } });
 
   notifierRendezVous(rdv, 'autre_date_proposee').catch((e) =>
     console.error('[notif] autre_date_proposee', e)

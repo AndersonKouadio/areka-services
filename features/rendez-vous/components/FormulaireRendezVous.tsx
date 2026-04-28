@@ -46,7 +46,24 @@ export function FormulaireRendezVous() {
 
   const next = async () => {
     const ok = await methods.trigger(FIELDS_PER_STEP[step]);
-    if (ok) setStep(step + 1);
+    if (ok) {
+      setStep(step + 1);
+      return;
+    }
+    // Auto-focus + scroll vers le 1er champ invalide
+    const errs = methods.formState.errors;
+    const firstError = FIELDS_PER_STEP[step].find(
+      (f) => (errs as Record<string, unknown>)[f]
+    );
+    if (firstError) {
+      const el = document.querySelector(
+        `[name="${firstError}"]`
+      ) as HTMLElement | null;
+      if (el) {
+        el.focus({ preventScroll: true });
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
   };
 
   const submit = methods.handleSubmit(async (data) => {
@@ -84,7 +101,11 @@ export function FormulaireRendezVous() {
           </div>
 
           {methods.formState.errors.root?.message && (
-            <p className="text-areka-coral mt-4 text-sm">
+            <p
+              role="alert"
+              aria-live="polite"
+              className="text-areka-coral mt-4 text-sm"
+            >
               {methods.formState.errors.root.message}
             </p>
           )}

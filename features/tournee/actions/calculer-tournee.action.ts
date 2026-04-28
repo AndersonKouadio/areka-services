@@ -7,14 +7,25 @@ import { auth } from '@/lib/auth';
 import {
   geocoderAdresse,
   calculerOrdreNearestNeighbour,
+  type Coordinates,
 } from '@/lib/geo/openroute';
 import type { TourneeJour, RendezVousAvecOrdre } from '../types/tournee.type';
+import type { RendezVous } from '@prisma/client';
 
 /**
  * Adresse de départ Areka (Lieu-dit l'Hermitage, 49300 Cholet).
  * Coordonnées approximatives pré-calculées pour éviter un geocoding inutile.
  */
 const DEPART_AREKA = { lat: 47.0617, lng: -0.8786 };
+
+/**
+ * Convertit "8h30-9h30" en minutes depuis minuit pour le tri.
+ */
+function creneauStartMin(creneau: string): number {
+  const m = creneau.match(/^(\d{1,2})h(\d{2})/);
+  if (!m) return 0;
+  return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+}
 
 export async function calculerTourneeJour(date: Date): Promise<TourneeJour> {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -29,7 +40,7 @@ export async function calculerTourneeJour(date: Date): Promise<TourneeJour> {
     orderBy: { creneau: 'asc' },
   });
 
-  // Géocodage en parallèle (limite à éviter rate-limit ORS — OK pour < 10 RDV/jour)
+  // Géocodage en parallèle (cache mémoire dans openroute.ts évite les ré-appels)
   const geocoded = await Promise.all(
     rdvs.map(async (r) => ({
       rdv: r,
@@ -38,28 +49,61 @@ export async function calculerTourneeJour(date: Date): Promise<TourneeJour> {
   );
 
   const avecCoords = geocoded.filter((g) => g.coords !== null) as {
-    rdv: (typeof geocoded)[number]['rdv'];
-    coords: NonNullable<(typeof geocoded)[number]['coords']>;
+    rdv: RendezVous;
+    coords: Coordinates;
   }[];
   const sansCoords = geocoded.filter((g) => !g.coords).map((g) => g.rdv);
 
-  const ordres = calculerOrdreNearestNeighbour(
-    DEPART_AREKA,
-    avecCoords.map((g) => ({ id: g.rdv.id, coords: g.coords }))
-  );
+  /* RESPECT DES CRÉNEAUX HORAIRES :
+     L'ordre chronologique du créneau est PRIORITAIRE sur la distance.
+     Un RDV à 8h30 doit toujours précéder un RDV à 14h00, peu importe la distance.
+     On sépare matin / après-midi, on trie par heure dans chaque demi-journée,
+     puis nearest-neighbour est appliqué SEULEMENT entre RDV de même heure
+     (cas rare — sinon l'ordre chronologique gagne). */
+  const matin = avecCoords.filter((g) => creneauStartMin(g.rdv.creneau) < 12 * 60);
+  const aprem = avecCoords.filter((g) => creneauStartMin(g.rdv.creneau) >= 12 * 60);
 
-  const ordreMap = new Map(ordres.map((o) => [o.id, o]));
-  const rdvsOrdonnes: RendezVousAvecOrdre[] = avecCoords
-    .map((g) => {
-      const o = ordreMap.get(g.rdv.id);
-      return {
+  const trier = (
+    groupe: typeof avecCoords,
+    pointDepart: Coordinates
+  ): RendezVousAvecOrdre[] => {
+    if (groupe.length === 0) return [];
+    // Tri par créneau (chronologique strict)
+    const sorted = [...groupe].sort(
+      (a, b) => creneauStartMin(a.rdv.creneau) - creneauStartMin(b.rdv.creneau)
+    );
+    // Distances séquentielles depuis le point de départ
+    const result: RendezVousAvecOrdre[] = [];
+    let courant = pointDepart;
+    sorted.forEach((g, idx) => {
+      const ordres = calculerOrdreNearestNeighbour(courant, [
+        { id: g.rdv.id, coords: g.coords },
+      ]);
+      const dist = ordres[0]?.distanceKm ?? 0;
+      result.push({
         rdv: g.rdv,
         coords: g.coords,
-        ordre: o?.ordre ?? 0,
-        distanceDepuisPrecedent: o?.distanceKm ?? 0,
-      };
-    })
-    .sort((a, b) => a.ordre - b.ordre);
+        ordre: idx,
+        distanceDepuisPrecedent: dist,
+      });
+      courant = g.coords;
+    });
+    return result;
+  };
+
+  const matinOrdonne = trier(matin, DEPART_AREKA);
+  const dernierMatin =
+    matinOrdonne[matinOrdonne.length - 1]?.coords ?? DEPART_AREKA;
+  const apremOrdonne = trier(aprem, dernierMatin);
+
+  // Re-numérotation globale (matin: 0..N, après-midi: N..M)
+  const rdvsOrdonnes: RendezVousAvecOrdre[] = [
+    ...matinOrdonne,
+    ...apremOrdonne.map((r, i) => ({
+      ...r,
+      ordre: matinOrdonne.length + i,
+    })),
+  ];
 
   const distanceTotale = rdvsOrdonnes.reduce(
     (sum, r) => sum + r.distanceDepuisPrecedent,

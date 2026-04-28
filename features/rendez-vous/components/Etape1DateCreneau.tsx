@@ -3,7 +3,7 @@
 import { Calendar } from '@heroui/react';
 import { type DateValue, getLocalTimeZone, today } from '@internationalized/date';
 import { useFormContext } from 'react-hook-form';
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { Loader2, Sun, Sunset, CalendarDays } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCreneauxDisponiblesQuery } from '../queries/creneaux-disponibles.query';
@@ -52,23 +52,30 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
 
 export function Etape1DateCreneau() {
   const { setValue, watch } = useFormContext<CreateRendezVousDTO>();
-  const [dateValue, setDateValue] = useState<DateValue | null>(null);
+  // état local — uniquement pour piloter le composant Calendar
+  // (sa source de vérité reste `dateRDV` côté form).
+  const [localDate, setLocalDate] = useState<DateValue | null>(null);
   const dateRDV = watch('dateRDV');
   const creneauSelectionne = watch('creneau');
 
-  useEffect(() => {
-    if (dateRDV) setDateValue(today(getLocalTimeZone()).set({
-      year: dateRDV.getFullYear(),
-      month: dateRDV.getMonth() + 1,
-      day: dateRDV.getDate(),
-    }));
-  }, [dateRDV]);
+  // dateValue dérivé : si le form a une dateRDV, on la convertit en DateValue ;
+  // sinon on retombe sur l'état local (post-clic utilisateur avant validate).
+  const dateValue = useMemo<DateValue | null>(() => {
+    if (dateRDV) {
+      return today(getLocalTimeZone()).set({
+        year: dateRDV.getFullYear(),
+        month: dateRDV.getMonth() + 1,
+        day: dateRDV.getDate(),
+      });
+    }
+    return localDate;
+  }, [dateRDV, localDate]);
 
   const dateJS = dateValue?.toDate(getLocalTimeZone()) ?? null;
   const { data, isLoading, isError } = useCreneauxDisponiblesQuery(dateJS);
 
   const handleDateChange = (val: DateValue) => {
-    setDateValue(val);
+    setLocalDate(val);
     setValue('dateRDV', val.toDate(getLocalTimeZone()), { shouldValidate: true });
     setValue('creneau', '', { shouldValidate: false });
   };

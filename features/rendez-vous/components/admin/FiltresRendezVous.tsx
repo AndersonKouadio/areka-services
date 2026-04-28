@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Input, SearchField, Select, ListBox, Label } from '@heroui/react';
 import { useRendezVousFilters } from '../../filters/rendez-vous.filters';
 import { LIBELLE_STATUT, LIBELLE_TYPE } from '../../utils/statut.utils';

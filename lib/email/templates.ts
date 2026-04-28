@@ -7,6 +7,28 @@ const NAVY = '#1E3A5F';
 const ORANGE = '#F97316';
 const CREAM = '#FAF7F2';
 
+/**
+ * Escape HTML pour éviter XSS : un client malveillant peut injecter
+ * du HTML/JS via clientNom, description, motifRefus, etc.
+ */
+function esc(s: string | null | undefined): string {
+  if (s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Encode un email/téléphone pour href="tel:..." / "mailto:..."
+ * (URL-encode les caractères dangereux)
+ */
+function encUri(s: string | null | undefined): string {
+  return encodeURIComponent(String(s ?? ''));
+}
+
 function formaterDate(d: Date): string {
   return new Date(d).toLocaleDateString('fr-FR', {
     weekday: 'long',
@@ -35,11 +57,11 @@ function shell(title: string, body: string): string {
 
 function rdvDetails(rdv: RendezVous): string {
   return `<table style="width:100%;font-size:14px;color:#555;border-collapse:collapse;margin:12px 0">
-    <tr><td style="padding:6px 0;font-weight:600;width:120px;color:${NAVY}">Référence</td><td style="font-family:ui-monospace,monospace">${rdv.reference}</td></tr>
-    <tr><td style="padding:6px 0;font-weight:600;color:${NAVY}">Type</td><td>${LIBELLE_TYPE[rdv.type]}</td></tr>
-    <tr><td style="padding:6px 0;font-weight:600;color:${NAVY}">Date</td><td>${formaterDate(rdv.dateRDV)}</td></tr>
-    <tr><td style="padding:6px 0;font-weight:600;color:${NAVY}">Créneau</td><td>${formaterCreneau(rdv.creneau)}</td></tr>
-    ${rdv.description ? `<tr><td style="padding:6px 0;font-weight:600;color:${NAVY};vertical-align:top">Description</td><td>${rdv.description}</td></tr>` : ''}
+    <tr><td style="padding:6px 0;font-weight:600;width:120px;color:${NAVY}">Référence</td><td style="font-family:ui-monospace,monospace">${esc(rdv.reference)}</td></tr>
+    <tr><td style="padding:6px 0;font-weight:600;color:${NAVY}">Type</td><td>${esc(LIBELLE_TYPE[rdv.type])}</td></tr>
+    <tr><td style="padding:6px 0;font-weight:600;color:${NAVY}">Date</td><td>${esc(formaterDate(rdv.dateRDV))}</td></tr>
+    <tr><td style="padding:6px 0;font-weight:600;color:${NAVY}">Créneau</td><td>${esc(formaterCreneau(rdv.creneau))}</td></tr>
+    ${rdv.description ? `<tr><td style="padding:6px 0;font-weight:600;color:${NAVY};vertical-align:top">Description</td><td>${esc(rdv.description)}</td></tr>` : ''}
   </table>`;
 }
 
@@ -49,7 +71,7 @@ export function emailDemandeRecueClient(rdv: RendezVous) {
     subject: `Areka Services — Demande reçue (${rdv.reference})`,
     html: shell(
       'Demande reçue',
-      `<p>Bonjour ${rdv.clientPrenom},</p>
+      `<p>Bonjour ${esc(rdv.clientPrenom)},</p>
        <p>Nous avons bien reçu votre demande de rendez-vous. Julien vous contactera sous 24h pour valider votre créneau.</p>
        ${rdvDetails(rdv)}
        <p style="margin-top:16px">À très bientôt,<br><strong>Julien Ligner</strong></p>`
@@ -67,12 +89,12 @@ export function emailNouvelleDemandeAdmin(rdv: RendezVous) {
        ${rdvDetails(rdv)}
        <h3 style="color:${NAVY};font-size:14px;margin-top:20px">Client</h3>
        <table style="width:100%;font-size:14px;color:#555">
-         <tr><td style="padding:4px 0;font-weight:600;width:120px">Nom</td><td>${rdv.clientPrenom} ${rdv.clientNom}</td></tr>
-         <tr><td style="padding:4px 0;font-weight:600">Téléphone</td><td><a href="tel:${rdv.clientTelephone}" style="color:${ORANGE}">${rdv.clientTelephone}</a></td></tr>
-         <tr><td style="padding:4px 0;font-weight:600">Email</td><td><a href="mailto:${rdv.clientEmail}" style="color:${ORANGE}">${rdv.clientEmail}</a></td></tr>
-         <tr><td style="padding:4px 0;font-weight:600;vertical-align:top">Adresse</td><td>${rdv.clientAdresse}</td></tr>
+         <tr><td style="padding:4px 0;font-weight:600;width:120px">Nom</td><td>${esc(rdv.clientPrenom)} ${esc(rdv.clientNom)}</td></tr>
+         <tr><td style="padding:4px 0;font-weight:600">Téléphone</td><td><a href="tel:${encUri(rdv.clientTelephone)}" style="color:${ORANGE}">${esc(rdv.clientTelephone)}</a></td></tr>
+         <tr><td style="padding:4px 0;font-weight:600">Email</td><td><a href="mailto:${encUri(rdv.clientEmail)}" style="color:${ORANGE}">${esc(rdv.clientEmail)}</a></td></tr>
+         <tr><td style="padding:4px 0;font-weight:600;vertical-align:top">Adresse</td><td>${esc(rdv.clientAdresse)}</td></tr>
        </table>
-       <p style="margin-top:20px"><a href="${PUBLIC_URL}/admin/rendez-vous/${rdv.id}" style="background:${ORANGE};color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block">Voir dans l'admin</a></p>`
+       <p style="margin-top:20px"><a href="${PUBLIC_URL}/admin/rendez-vous/${encodeURIComponent(rdv.id)}" style="background:${ORANGE};color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block">Voir dans l'admin</a></p>`
     ),
   };
 }
@@ -83,10 +105,10 @@ export function emailRdvConfirmeClient(rdv: RendezVous) {
     subject: `Areka Services — RDV confirmé (${rdv.reference})`,
     html: shell(
       'Rendez-vous confirmé ✓',
-      `<p>Bonjour ${rdv.clientPrenom},</p>
+      `<p>Bonjour ${esc(rdv.clientPrenom)},</p>
        <p>Votre rendez-vous est confirmé. Julien sera chez vous comme prévu.</p>
        ${rdvDetails(rdv)}
-       ${rdv.notesAdmin ? `<p style="background:#f4efe6;padding:12px;border-radius:8px;font-size:13px"><strong>Note de Julien :</strong><br>${rdv.notesAdmin}</p>` : ''}
+       ${rdv.notesAdmin ? `<p style="background:#f4efe6;padding:12px;border-radius:8px;font-size:13px"><strong>Note de Julien :</strong><br>${esc(rdv.notesAdmin)}</p>` : ''}
        <p>À bientôt !<br><strong>Julien Ligner</strong></p>`
     ),
   };
@@ -98,10 +120,10 @@ export function emailRdvRefuseClient(rdv: RendezVous) {
     subject: `Areka Services — RDV non disponible (${rdv.reference})`,
     html: shell(
       'Rendez-vous non disponible',
-      `<p>Bonjour ${rdv.clientPrenom},</p>
+      `<p>Bonjour ${esc(rdv.clientPrenom)},</p>
        <p>Nous ne pouvons malheureusement pas honorer votre demande de rendez-vous.</p>
        ${rdvDetails(rdv)}
-       ${rdv.motifRefus ? `<p style="background:#fce7ec;padding:12px;border-radius:8px;font-size:13px"><strong>Motif :</strong><br>${rdv.motifRefus}</p>` : ''}
+       ${rdv.motifRefus ? `<p style="background:#fce7ec;padding:12px;border-radius:8px;font-size:13px"><strong>Motif :</strong><br>${esc(rdv.motifRefus)}</p>` : ''}
        <p>N'hésitez pas à nous contacter pour proposer un autre créneau.</p>
        <p><strong>Julien Ligner</strong> — 07 69 40 10 93</p>`
     ),
@@ -115,13 +137,13 @@ export function emailAutreDateProposeeClient(rdv: RendezVous) {
     subject: `Areka Services — Nouvelle date proposée (${rdv.reference})`,
     html: shell(
       'Nouvelle date proposée',
-      `<p>Bonjour ${rdv.clientPrenom},</p>
+      `<p>Bonjour ${esc(rdv.clientPrenom)},</p>
        <p>Julien vous propose une nouvelle date pour votre intervention :</p>
        <div style="background:#fff1e6;border-left:4px solid ${ORANGE};padding:12px 16px;margin:16px 0;border-radius:6px">
-         <p style="margin:0;font-size:16px;font-weight:600;color:${NAVY}">${formaterDate(rdv.datePropose)}</p>
-         <p style="margin:4px 0 0;font-size:14px">Créneau : ${formaterCreneau(rdv.creneauPropose)}</p>
+         <p style="margin:0;font-size:16px;font-weight:600;color:${NAVY}">${esc(formaterDate(rdv.datePropose))}</p>
+         <p style="margin:4px 0 0;font-size:14px">Créneau : ${esc(formaterCreneau(rdv.creneauPropose))}</p>
        </div>
-       ${rdv.notesAdmin ? `<p style="background:#f4efe6;padding:12px;border-radius:8px;font-size:13px">${rdv.notesAdmin}</p>` : ''}
+       ${rdv.notesAdmin ? `<p style="background:#f4efe6;padding:12px;border-radius:8px;font-size:13px">${esc(rdv.notesAdmin)}</p>` : ''}
        <p>Merci de répondre à cet email pour confirmer ou proposer une autre date.</p>
        <p><strong>Julien Ligner</strong> — 07 69 40 10 93</p>`
     ),
@@ -134,7 +156,7 @@ export function emailRappelClient(rdv: RendezVous) {
     subject: `Areka Services — Rappel : RDV demain (${rdv.reference})`,
     html: shell(
       'Rappel — RDV demain',
-      `<p>Bonjour ${rdv.clientPrenom},</p>
+      `<p>Bonjour ${esc(rdv.clientPrenom)},</p>
        <p>Petit rappel : Julien intervient chez vous demain.</p>
        ${rdvDetails(rdv)}
        <p>À demain !<br><strong>Julien Ligner</strong></p>`

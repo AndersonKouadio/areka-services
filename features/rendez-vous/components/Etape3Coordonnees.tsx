@@ -25,6 +25,8 @@ export function Etape3Coordonnees() {
           <Input
             {...register('clientPrenom')}
             placeholder="Marie"
+            autoComplete="given-name"
+            autoCapitalize="words"
             className="text-base"
           />
           {errors.clientPrenom?.message && (
@@ -37,6 +39,8 @@ export function Etape3Coordonnees() {
           <Input
             {...register('clientNom')}
             placeholder="Dupont"
+            autoComplete="family-name"
+            autoCapitalize="words"
             className="text-base"
           />
           {errors.clientNom?.message && (
@@ -50,6 +54,10 @@ export function Etape3Coordonnees() {
         <Input
           {...register('clientEmail')}
           type="email"
+          inputMode="email"
+          autoComplete="email"
+          autoCapitalize="off"
+          spellCheck={false}
           placeholder="marie.dupont@example.com"
           className="text-base"
         />
@@ -63,6 +71,8 @@ export function Etape3Coordonnees() {
         <Input
           {...register('clientTelephone')}
           type="tel"
+          inputMode="tel"
+          autoComplete="tel"
           placeholder="07 12 34 56 78"
           className="text-base"
         />
@@ -76,6 +86,7 @@ export function Etape3Coordonnees() {
         <TextArea
           id="adresse"
           {...register('clientAdresse')}
+          autoComplete="street-address"
           placeholder="12 rue de la Paix, 49300 Cholet"
           className="min-h-20 w-full"
         />

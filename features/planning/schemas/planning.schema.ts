@@ -1,12 +1,37 @@
 import { z } from 'zod';
+import {
+  validerCreneau,
+  detecterChevauchement,
+} from '../utils/planning.utils';
 
 const CRENEAU_REGEX = /^\d{1,2}h\d{2}-\d{1,2}h\d{2}$/;
+
+/**
+ * Validateur Zod pour un tableau de créneaux :
+ * - chaque item au format `Xh00-Xh00`
+ * - chaque item avec `start < end` et heures plausibles
+ * - aucun chevauchement entre créneaux
+ */
+const creneauxArray = z
+  .array(z.string().trim().regex(CRENEAU_REGEX, 'Format créneau invalide'))
+  .superRefine((arr, ctx) => {
+    arr.forEach((c, i) => {
+      const err = validerCreneau(c);
+      if (err) {
+        ctx.addIssue({ code: 'custom', message: err, path: [i] });
+      }
+    });
+    const overlap = detecterChevauchement(arr);
+    if (overlap) {
+      ctx.addIssue({ code: 'custom', message: overlap });
+    }
+  });
 
 /** Schéma config hebdomadaire (un Planning par jour de semaine). */
 export const updatePlanningSchema = z.object({
   jourSemaine: z.number().int().min(0).max(6),
   actif: z.boolean(),
-  creneaux: z.array(z.string().regex(CRENEAU_REGEX, 'Créneau invalide')),
+  creneaux: creneauxArray,
 });
 export type UpdatePlanningDTO = z.infer<typeof updatePlanningSchema>;
 
@@ -14,10 +39,8 @@ export type UpdatePlanningDTO = z.infer<typeof updatePlanningSchema>;
 export const createJourSpecialSchema = z.object({
   date: z.coerce.date(),
   actif: z.boolean().default(false),
-  creneaux: z
-    .array(z.string().regex(CRENEAU_REGEX, 'Créneau invalide'))
-    .default([]),
-  motif: z.string().max(200).optional(),
+  creneaux: creneauxArray.default([]),
+  motif: z.string().trim().max(200).optional(),
 });
 export type CreateJourSpecialDTO = z.infer<typeof createJourSpecialSchema>;
 
