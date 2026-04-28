@@ -134,12 +134,13 @@ export function Etape1DateCreneau() {
       </div>
 
       <div className="space-y-6">
-        <div className="bg-surface/60 border-border/50 mx-auto w-full max-w-[320px] rounded-2xl border p-3 sm:p-4">
+        <div className="bg-surface/60 border-border/50 w-full rounded-2xl border p-4 sm:p-6">
           <Calendar
             value={dateValue}
             onChange={handleDateChange}
             minValue={today(getLocalTimeZone())}
             aria-label="Date du rendez-vous"
+            className="!w-full !max-w-none"
           >
             <Calendar.Header>
               <Calendar.NavButton slot="previous" />
