@@ -37,7 +37,7 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
           · {creneaux.length} dispo{creneaux.length > 1 ? 's' : ''}
         </span>
       </div>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+      <div className="flex flex-wrap gap-2">
         {creneaux.map((c) => {
           const [debut, fin] = c.split('-');
           const isActive = selected === c;
@@ -49,7 +49,7 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
               aria-pressed={isActive}
               aria-label={`Créneau de ${debut} à ${fin}`}
               className={cn(
-                'group relative flex h-12 items-center justify-center rounded-xl border-2 px-2 transition-all duration-150',
+                'group relative flex h-12 min-w-[120px] flex-1 basis-[140px] items-center justify-center rounded-xl border-2 px-3 transition-all duration-150',
                 isActive
                   ? 'border-areka-navy bg-areka-navy text-white shadow-md'
                   : 'border-border bg-surface text-foreground hover:border-areka-navy/40 hover:bg-areka-navy/5 hover:shadow-sm active:scale-[0.98]'
@@ -76,11 +76,12 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
                 </span>
               </span>
               {isActive && (
-                <Check
-                  size={12}
-                  strokeWidth={3}
-                  className="absolute right-1.5 top-1.5"
-                />
+                <span
+                  aria-hidden="true"
+                  className="bg-white/15 absolute right-2 top-1/2 inline-flex size-5 -translate-y-1/2 items-center justify-center rounded-full"
+                >
+                  <Check size={12} strokeWidth={3} />
+                </span>
               )}
             </button>
           );
@@ -133,7 +134,7 @@ export function Etape1DateCreneau() {
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-[minmax(320px,1fr)_1fr] lg:items-start lg:gap-8">
         <div className="bg-surface/60 border-border/50 w-full rounded-2xl border p-4 sm:p-6">
           <Calendar
             value={dateValue}

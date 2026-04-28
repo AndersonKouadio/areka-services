@@ -9,7 +9,7 @@ export const metadata = {
 export default function NouveauRendezVousPage() {
   return (
     <main className="from-areka-cream to-background w-full min-h-[calc(100vh-200px)] bg-linear-to-b">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         <Link
           href="/admin/rendez-vous"
           className="text-foreground/60 hover:text-foreground inline-flex items-center gap-1 text-sm transition"
