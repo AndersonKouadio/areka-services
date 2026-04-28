@@ -63,10 +63,10 @@ export function ProposerDateModalContent({
           Le client recevra cette nouvelle proposition par email + SMS.
         </p>
       </Modal.Header>
-      <Modal.Body className="space-y-5">
+      <Modal.Body className="text-foreground space-y-5">
         <div className="grid gap-5 lg:grid-cols-[minmax(280px,360px)_1fr] lg:items-start">
           {/* Calendrier */}
-          <div className="bg-surface/60 border-border/50 w-full rounded-2xl border p-3 sm:p-4">
+          <div className="bg-surface text-foreground border-border w-full rounded-2xl border p-3 sm:p-4">
             <Calendar
               value={dateValue}
               onChange={(v) => {
@@ -96,8 +96,10 @@ export function ProposerDateModalContent({
           </div>
 
           {/* Créneaux + message */}
-          <div className="space-y-4">
-            <p className="text-sm font-semibold">Créneaux disponibles</p>
+          <div className="text-foreground space-y-4">
+            <p className="text-foreground text-sm font-semibold">
+              Créneaux disponibles
+            </p>
 
             {!dateValue && (
               <div className="border-border/50 bg-muted/30 flex min-h-[140px] flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center">
