@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TypeIntervention } from '@prisma/client';
+import { TypeIntervention } from '../types/enums';
 
 const TELEPHONE_REGEX = /^(?:(?:\+33|0033|0)\s?[1-9](?:[\s.-]?\d{2}){4})$/;
 const CRENEAU_REGEX = /^\d{1,2}h\d{2}-\d{1,2}h\d{2}$/;

@@ -1,4 +1,4 @@
-import { StatutRDV, TypeIntervention, SourceRDV } from '@prisma/client';
+import type { StatutRDV, TypeIntervention, SourceRDV } from '../types/enums';
 
 /**
  * Libellés FR pour affichage UI.
