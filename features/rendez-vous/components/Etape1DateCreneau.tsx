@@ -4,7 +4,7 @@ import { Calendar } from '@heroui/react';
 import { type DateValue, getLocalTimeZone, today } from '@internationalized/date';
 import { useFormContext } from 'react-hook-form';
 import { useMemo, useState } from 'react';
-import { Loader2, Sun, Sunset, CalendarDays } from 'lucide-react';
+import { Loader2, Sun, Sunset, CalendarDays, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCreneauxDisponiblesQuery } from '../queries/creneaux-disponibles.query';
 import type { CreateRendezVousDTO } from '../schemas/rendez-vous.schema';
@@ -18,30 +18,59 @@ interface GroupeProps {
 
 function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
   const Icon = label === 'Matin' ? Sun : Sunset;
+  const iconColor = label === 'Matin' ? 'text-areka-amber' : 'text-areka-orange';
   return (
     <div>
-      <p className="text-foreground/60 mb-3 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider">
-        <Icon size={12} />
-        {label}
-      </p>
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+      <div className="mb-3 flex items-center gap-2">
+        <span
+          className={cn(
+            'inline-flex size-6 items-center justify-center rounded-full',
+            label === 'Matin' ? 'bg-areka-amber/15' : 'bg-areka-orange/15'
+          )}
+        >
+          <Icon size={13} className={iconColor} />
+        </span>
+        <p className="text-foreground/80 text-xs font-semibold uppercase tracking-wider">
+          {label}
+        </p>
+        <span className="text-foreground/50 text-xs">
+          · {creneaux.length} dispo{creneaux.length > 1 ? 's' : ''}
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
         {creneaux.map((c) => {
-          const debut = c.split('-')[0];
+          const [debut, fin] = c.split('-');
           const isActive = selected === c;
           return (
             <button
               key={c}
               type="button"
               onClick={() => onSelect(c)}
-              className={cn(
-                'inline-flex h-11 items-center justify-center rounded-lg border text-sm font-medium tabular-nums whitespace-nowrap transition',
-                isActive
-                  ? 'border-areka-navy bg-areka-navy text-white shadow-sm'
-                  : 'border-border bg-surface hover:border-areka-navy/40 hover:bg-muted/60'
-              )}
               aria-pressed={isActive}
+              aria-label={`Créneau ${debut} à ${fin}`}
+              className={cn(
+                'group relative flex h-14 items-center justify-center gap-2 rounded-xl border-2 px-3 transition-all duration-150',
+                isActive
+                  ? 'border-areka-navy bg-areka-navy text-white shadow-md'
+                  : 'border-border bg-surface text-foreground hover:border-areka-navy/40 hover:bg-areka-navy/5 hover:shadow-sm active:scale-[0.98]'
+              )}
             >
-              {debut}
+              <div className="flex flex-col items-start leading-tight">
+                <span className="text-base font-semibold tabular-nums">
+                  {debut}
+                </span>
+                <span
+                  className={cn(
+                    'text-[11px] tabular-nums transition',
+                    isActive ? 'text-white/70' : 'text-foreground/50'
+                  )}
+                >
+                  → {fin}
+                </span>
+              </div>
+              {isActive && (
+                <Check size={16} className="ml-auto shrink-0" strokeWidth={3} />
+              )}
             </button>
           );
         })}
