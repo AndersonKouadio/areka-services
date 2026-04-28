@@ -37,7 +37,7 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
           · {creneaux.length} dispo{creneaux.length > 1 ? 's' : ''}
         </span>
       </div>
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
         {creneaux.map((c) => {
           const [debut, fin] = c.split('-');
           const isActive = selected === c;
@@ -47,29 +47,41 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
               type="button"
               onClick={() => onSelect(c)}
               aria-pressed={isActive}
-              aria-label={`Créneau ${debut} à ${fin}`}
+              aria-label={`Créneau de ${debut} à ${fin}`}
               className={cn(
-                'group relative flex h-14 items-center justify-center gap-2 rounded-xl border-2 px-3 transition-all duration-150',
+                'group relative flex h-14 items-center justify-between gap-3 rounded-xl border-2 px-4 transition-all duration-150',
                 isActive
                   ? 'border-areka-navy bg-areka-navy text-white shadow-md'
                   : 'border-border bg-surface text-foreground hover:border-areka-navy/40 hover:bg-areka-navy/5 hover:shadow-sm active:scale-[0.98]'
               )}
             >
-              <div className="flex flex-col items-start leading-tight">
-                <span className="text-base font-semibold tabular-nums">
-                  {debut}
+              <span className="flex items-baseline gap-1.5 tabular-nums leading-none">
+                <span className="text-base font-semibold">{debut}</span>
+                <span
+                  className={cn(
+                    'text-xs',
+                    isActive ? 'text-white/60' : 'text-foreground/40'
+                  )}
+                  aria-hidden="true"
+                >
+                  →
                 </span>
                 <span
                   className={cn(
-                    'text-[11px] tabular-nums transition',
-                    isActive ? 'text-white/70' : 'text-foreground/50'
+                    'text-sm font-medium',
+                    isActive ? 'text-white/85' : 'text-foreground/70'
                   )}
                 >
-                  → {fin}
+                  {fin}
                 </span>
-              </div>
-              {isActive && (
-                <Check size={16} className="ml-auto shrink-0" strokeWidth={3} />
+              </span>
+              {isActive ? (
+                <Check size={16} strokeWidth={3} className="shrink-0" />
+              ) : (
+                <span
+                  className="border-border/60 group-hover:border-areka-navy/50 size-2 shrink-0 rounded-full border-2 transition"
+                  aria-hidden="true"
+                />
               )}
             </button>
           );
