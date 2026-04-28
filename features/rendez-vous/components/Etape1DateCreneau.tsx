@@ -4,92 +4,10 @@ import { Calendar } from '@heroui/react';
 import { type DateValue, getLocalTimeZone, today } from '@internationalized/date';
 import { useFormContext } from 'react-hook-form';
 import { useMemo, useState } from 'react';
-import { Loader2, Sun, Sunset, CalendarDays, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Loader2, CalendarDays } from 'lucide-react';
 import { useCreneauxDisponiblesQuery } from '../queries/creneaux-disponibles.query';
+import { CreneauxSection } from './CreneauxPicker';
 import type { CreateRendezVousDTO } from '../schemas/rendez-vous.schema';
-
-interface GroupeProps {
-  label: string;
-  creneaux: string[];
-  selected: string | undefined;
-  onSelect: (c: string) => void;
-}
-
-function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
-  const Icon = label === 'Matin' ? Sun : Sunset;
-  const iconColor = label === 'Matin' ? 'text-areka-amber' : 'text-areka-orange';
-  return (
-    <div>
-      <div className="mb-3 flex items-center gap-2">
-        <span
-          className={cn(
-            'inline-flex size-6 items-center justify-center rounded-full',
-            label === 'Matin' ? 'bg-areka-amber/15' : 'bg-areka-orange/15'
-          )}
-        >
-          <Icon size={13} className={iconColor} />
-        </span>
-        <p className="text-foreground/80 text-xs font-semibold uppercase tracking-wider">
-          {label}
-        </p>
-        <span className="text-foreground/50 text-xs">
-          · {creneaux.length} dispo{creneaux.length > 1 ? 's' : ''}
-        </span>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {creneaux.map((c) => {
-          const [debut, fin] = c.split('-');
-          const isActive = selected === c;
-          return (
-            <button
-              key={c}
-              type="button"
-              onClick={() => onSelect(c)}
-              aria-pressed={isActive}
-              aria-label={`Créneau de ${debut} à ${fin}`}
-              className={cn(
-                'group flex h-12 min-w-[110px] flex-1 basis-[120px] items-center justify-center gap-2 rounded-xl border-2 px-3 transition-all duration-150',
-                isActive
-                  ? 'border-accent bg-accent text-accent-foreground shadow-md'
-                  : 'border-border bg-surface text-foreground hover:border-accent/50 hover:bg-accent/10 hover:shadow-sm active:scale-[0.98]'
-              )}
-            >
-              <span className="flex items-baseline gap-1 tabular-nums">
-                <span className="text-sm font-semibold">{debut}</span>
-                <span
-                  className={cn(
-                    'text-xs',
-                    isActive ? 'text-accent-foreground/60' : 'text-foreground/40'
-                  )}
-                  aria-hidden="true"
-                >
-                  —
-                </span>
-                <span
-                  className={cn(
-                    'text-sm font-semibold',
-                    isActive ? 'text-accent-foreground' : 'text-foreground'
-                  )}
-                >
-                  {fin}
-                </span>
-              </span>
-              {isActive && (
-                <Check
-                  size={14}
-                  strokeWidth={3}
-                  aria-hidden="true"
-                  className="shrink-0"
-                />
-              )}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 export function Etape1DateCreneau() {
   const { setValue, watch } = useFormContext<CreateRendezVousDTO>();
@@ -202,35 +120,17 @@ export function Etape1DateCreneau() {
             </div>
           )}
           {dateValue && !isLoading && !isError && data?.ouvert && data.creneaux.length > 0 && (
-            <div className="mt-4 space-y-5">
-              {(() => {
-                const matin = data.creneaux.filter(
+            <div className="mt-4">
+              <CreneauxSection
+                matin={data.creneaux.filter(
                   (c) => parseInt(c.split('h')[0], 10) < 12
-                );
-                const apresMidi = data.creneaux.filter(
+                )}
+                apresMidi={data.creneaux.filter(
                   (c) => parseInt(c.split('h')[0], 10) >= 12
-                );
-                return (
-                  <>
-                    {matin.length > 0 && (
-                      <CreneauxGroupe
-                        label="Matin"
-                        creneaux={matin}
-                        selected={creneauSelectionne}
-                        onSelect={handleCreneauClick}
-                      />
-                    )}
-                    {apresMidi.length > 0 && (
-                      <CreneauxGroupe
-                        label="Après-midi"
-                        creneaux={apresMidi}
-                        selected={creneauSelectionne}
-                        onSelect={handleCreneauClick}
-                      />
-                    )}
-                  </>
-                );
-              })()}
+                )}
+                selected={creneauSelectionne}
+                onSelect={handleCreneauClick}
+              />
             </div>
           )}
         </div>

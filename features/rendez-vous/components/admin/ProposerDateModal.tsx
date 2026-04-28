@@ -48,7 +48,7 @@ export function ProposerDateModal({ rdvId, isOpen, onOpenChange }: Props) {
   return (
     <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
       <Modal.Container>
-        <Modal.Dialog className="max-w-2xl">
+        <Modal.Dialog className="max-w-4xl">
           <Modal.CloseTrigger />
           <ProposerDateModalContent
             dateValue={dateValue}

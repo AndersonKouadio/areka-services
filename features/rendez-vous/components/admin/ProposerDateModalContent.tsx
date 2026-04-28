@@ -13,9 +13,8 @@ import {
   getLocalTimeZone,
   today,
 } from '@internationalized/date';
-import { CalendarClock, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { formaterCreneau } from '@/features/planning/utils/planning.utils';
+import { CalendarClock, CalendarDays, Loader2, X } from 'lucide-react';
+import { CreneauxSection } from '../CreneauxPicker';
 
 interface ContentProps {
   dateValue: DateValue | null;
@@ -42,75 +41,104 @@ export function ProposerDateModalContent({
   isPending,
   onSubmit,
 }: ContentProps) {
+  const matin =
+    creneauxData?.creneaux.filter(
+      (c) => parseInt(c.split('h')[0], 10) < 12
+    ) ?? [];
+  const apresMidi =
+    creneauxData?.creneaux.filter(
+      (c) => parseInt(c.split('h')[0], 10) >= 12
+    ) ?? [];
+
   return (
     <>
       <Modal.Header>
-        <Modal.Heading>Proposer une autre date</Modal.Heading>
-      </Modal.Header>
-      <Modal.Body>
-        <p className="text-foreground/70 -mt-2 mb-4 text-sm">
+        <Modal.Heading className="flex items-center gap-2">
+          <span className="bg-accent/15 text-accent inline-flex size-9 items-center justify-center rounded-full">
+            <CalendarClock size={18} />
+          </span>
+          Proposer une autre date
+        </Modal.Heading>
+        <p className="text-foreground/70 mt-2 text-sm">
           Le client recevra cette nouvelle proposition par email + SMS.
         </p>
-        <div className="grid gap-6 md:grid-cols-[auto_1fr]">
-          <Calendar
-            value={dateValue}
-            onChange={(v) => {
-              setDateValue(v);
-              setCreneau('');
-            }}
-            minValue={today(getLocalTimeZone())}
-            aria-label="Nouvelle date"
-          >
-            <Calendar.Header>
-              <Calendar.NavButton slot="previous" />
-              <Calendar.YearPickerTrigger>
-                <Calendar.YearPickerTriggerHeading />
-              </Calendar.YearPickerTrigger>
-              <Calendar.NavButton slot="next" />
-            </Calendar.Header>
-            <Calendar.Grid>
-              <Calendar.GridHeader>
-                {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
-              </Calendar.GridHeader>
-              <Calendar.GridBody>
-                {(date) => <Calendar.Cell date={date} />}
-              </Calendar.GridBody>
-            </Calendar.Grid>
-          </Calendar>
+      </Modal.Header>
+      <Modal.Body className="space-y-5">
+        <div className="grid gap-5 lg:grid-cols-[minmax(280px,360px)_1fr] lg:items-start">
+          {/* Calendrier */}
+          <div className="bg-surface/60 border-border/50 w-full rounded-2xl border p-3 sm:p-4">
+            <Calendar
+              value={dateValue}
+              onChange={(v) => {
+                setDateValue(v);
+                setCreneau('');
+              }}
+              minValue={today(getLocalTimeZone())}
+              aria-label="Nouvelle date"
+              className="!w-full !max-w-none"
+            >
+              <Calendar.Header>
+                <Calendar.NavButton slot="previous" />
+                <Calendar.YearPickerTrigger>
+                  <Calendar.YearPickerTriggerHeading />
+                </Calendar.YearPickerTrigger>
+                <Calendar.NavButton slot="next" />
+              </Calendar.Header>
+              <Calendar.Grid>
+                <Calendar.GridHeader>
+                  {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
+                </Calendar.GridHeader>
+                <Calendar.GridBody>
+                  {(date) => <Calendar.Cell date={date} />}
+                </Calendar.GridBody>
+              </Calendar.Grid>
+            </Calendar>
+          </div>
 
-          <div className="space-y-3">
-            <p className="text-sm font-medium">Créneaux disponibles</p>
+          {/* Créneaux + message */}
+          <div className="space-y-4">
+            <p className="text-sm font-semibold">Créneaux disponibles</p>
+
             {!dateValue && (
-              <p className="text-foreground/60 text-sm">
-                Sélectionnez une date.
-              </p>
+              <div className="border-border/50 bg-muted/30 flex min-h-[140px] flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center">
+                <CalendarDays size={24} className="text-foreground/40 mb-2" />
+                <p className="text-foreground/60 text-sm">
+                  Sélectionnez une date pour voir les créneaux.
+                </p>
+              </div>
             )}
+
             {dateValue && creneauxData && !creneauxData.ouvert && (
-              <p className="text-areka-coral text-sm">Fermé ce jour-là.</p>
+              <div className="border-areka-coral/30 bg-areka-coral/5 rounded-2xl border p-4 text-sm">
+                <p className="text-areka-coral font-medium">Fermé ce jour-là.</p>
+                <p className="text-foreground/60 mt-1 text-xs">
+                  Sélectionnez un autre jour.
+                </p>
+              </div>
             )}
+
             {dateValue &&
               creneauxData?.ouvert &&
-              creneauxData.creneaux.length > 0 && (
-                <div className="grid grid-cols-2 gap-2">
-                  {creneauxData.creneaux.map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setCreneau(c)}
-                      className={cn(
-                        'rounded-lg border px-3 py-2 text-sm font-medium transition',
-                        creneau === c
-                          ? 'border-areka-orange bg-areka-orange text-white'
-                          : 'border-border hover:border-areka-orange/60'
-                      )}
-                    >
-                      {formaterCreneau(c)}
-                    </button>
-                  ))}
+              creneauxData.creneaux.length === 0 && (
+                <div className="border-areka-coral/30 bg-areka-coral/5 rounded-2xl border p-4 text-sm">
+                  <p className="text-areka-coral font-medium">
+                    Tous les créneaux sont déjà pris.
+                  </p>
                 </div>
               )}
 
-            <div className="space-y-2 pt-2">
+            {dateValue &&
+              creneauxData?.ouvert &&
+              creneauxData.creneaux.length > 0 && (
+                <CreneauxSection
+                  matin={matin}
+                  apresMidi={apresMidi}
+                  selected={creneau}
+                  onSelect={setCreneau}
+                />
+              )}
+
+            <div className="border-border/40 space-y-2 border-t pt-4">
               <Label htmlFor="message-proposer">
                 Message au client (optionnel)
               </Label>
@@ -118,23 +146,29 @@ export function ProposerDateModalContent({
                 id="message-proposer"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Désolé, je ne suis pas disponible ce jour-là..."
+                placeholder="Désolé, je ne suis pas disponible ce jour-là…"
                 className="min-h-20 w-full"
               />
             </div>
-            {error && <FieldError>{error}</FieldError>}
+
+            {error && (
+              <FieldError className="block">
+                {error}
+              </FieldError>
+            )}
           </div>
         </div>
       </Modal.Body>
       <Modal.Footer>
         <Button slot="close" variant="tertiary">
+          <X size={14} />
           Annuler
         </Button>
         <Button variant="primary" onPress={onSubmit} isDisabled={isPending}>
           {isPending ? (
             <>
               <Loader2 size={16} className="animate-spin" />
-              Envoi...
+              Envoi…
             </>
           ) : (
             <>
