@@ -10,6 +10,24 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
+  /* Surfaces — re-bind sur les vars HeroUI pour exposer bg-card / bg-muted / bg-popover */
+  --color-card: var(--surface);
+  --color-card-foreground: var(--surface-foreground);
+  --color-popover: var(--overlay);
+  --color-popover-foreground: var(--overlay-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--field-placeholder);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+
+  /* Sidebar (admin) */
+  --color-sidebar: var(--surface);
+  --color-sidebar-foreground: var(--surface-foreground);
+  --color-sidebar-border: var(--border);
+  --color-sidebar-accent: var(--muted);
+  --color-sidebar-accent-foreground: var(--accent);
+
   /* Areka brand semantics — utilisable comme bg-areka-orange, text-areka-navy, etc. */
   --color-areka-cream: var(--areka-cream);
   --color-areka-navy: var(--areka-navy);
