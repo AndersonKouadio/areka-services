@@ -49,7 +49,7 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
               aria-pressed={isActive}
               aria-label={`Créneau de ${debut} à ${fin}`}
               className={cn(
-                'group relative flex h-12 min-w-[110px] flex-1 basis-[120px] items-center justify-center rounded-xl border-2 px-3 transition-all duration-150',
+                'group flex h-12 min-w-[110px] flex-1 basis-[120px] items-center justify-center gap-2 rounded-xl border-2 px-3 transition-all duration-150',
                 isActive
                   ? 'border-accent bg-accent text-accent-foreground shadow-md'
                   : 'border-border bg-surface text-foreground hover:border-accent/50 hover:bg-accent/10 hover:shadow-sm active:scale-[0.98]'
@@ -76,12 +76,12 @@ function CreneauxGroupe({ label, creneaux, selected, onSelect }: GroupeProps) {
                 </span>
               </span>
               {isActive && (
-                <span
+                <Check
+                  size={14}
+                  strokeWidth={3}
                   aria-hidden="true"
-                  className="bg-accent-foreground/15 absolute right-2 top-1/2 inline-flex size-5 -translate-y-1/2 items-center justify-center rounded-full"
-                >
-                  <Check size={12} strokeWidth={3} />
-                </span>
+                  className="shrink-0"
+                />
               )}
             </button>
           );
