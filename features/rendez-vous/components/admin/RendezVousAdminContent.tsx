@@ -1,12 +1,13 @@
 'use client';
 
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
 import { FiltresRendezVous } from './FiltresRendezVous';
 import { RendezVousTable } from './RendezVousTable';
 import { CalendrierRendezVous } from './CalendrierRendezVous';
 import { CalendrierSemaine } from './CalendrierSemaine';
 import { CalendrierJour } from './CalendrierJour';
 import { useVueRendezVous } from './VueRendezVousToggle';
-import { AjouterRendezVousModal } from './AjouterRendezVousModal';
 
 /**
  * Switch entre les 4 vues : liste / jour / semaine / mois.
@@ -15,46 +16,32 @@ import { AjouterRendezVousModal } from './AjouterRendezVousModal';
 export function RendezVousAdminContent() {
   const [vue] = useVueRendezVous();
 
-  if (vue === 'mois') {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-end">
-          <AjouterRendezVousModal />
-        </div>
-        <CalendrierRendezVous />
-      </div>
-    );
-  }
-
-  if (vue === 'semaine') {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-end">
-          <AjouterRendezVousModal />
-        </div>
-        <CalendrierSemaine />
-      </div>
-    );
-  }
-
-  if (vue === 'jour') {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-end">
-          <AjouterRendezVousModal />
-        </div>
-        <CalendrierJour />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <AjouterRendezVousModal />
+        <AjouterRendezVousLink />
       </div>
-      <FiltresRendezVous />
-      <RendezVousTable />
+      {vue === 'mois' && <CalendrierRendezVous />}
+      {vue === 'semaine' && <CalendrierSemaine />}
+      {vue === 'jour' && <CalendrierJour />}
+      {vue === 'liste' && (
+        <>
+          <FiltresRendezVous />
+          <RendezVousTable />
+        </>
+      )}
     </div>
+  );
+}
+
+function AjouterRendezVousLink() {
+  return (
+    <Link
+      href="/admin/rendez-vous/nouveau"
+      className="button button--primary inline-flex"
+    >
+      <Plus size={16} />
+      Ajouter un RDV
+    </Link>
   );
 }

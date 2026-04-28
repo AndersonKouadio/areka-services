@@ -4,13 +4,15 @@ import { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Card } from '@heroui/react';
-import { ArrowLeft, ArrowRight, Loader2, Send } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, Save, Send } from 'lucide-react';
 import {
   createRendezVousSchema,
   type CreateRendezVousDTO,
 } from '../schemas/rendez-vous.schema';
 import { useAjouterRendezVousMutation } from '../queries/rendez-vous-add.mutation';
+import { useAjouterRendezVousManuelMutation } from '../queries/rendez-vous-manuel.mutation';
 import { InfoAreka } from './InfoAreka';
+import { InfoAdminManuel } from './InfoAdminManuel';
 import { Stepper } from './Stepper';
 import { Etape1DateCreneau } from './Etape1DateCreneau';
 import { Etape2TypeDescription } from './Etape2TypeDescription';
@@ -32,7 +34,17 @@ const FIELDS_PER_STEP: Record<number, (keyof CreateRendezVousDTO)[]> = {
   4: [],
 };
 
-export function FormulaireRendezVous() {
+interface FormulaireRendezVousProps {
+  /**
+   * 'public'  — formulaire client (statut EN_ATTENTE, source FORMULAIRE)
+   * 'admin'   — création manuelle par l'admin (statut CONFIRME, source MANUEL)
+   */
+  mode?: 'public' | 'admin';
+}
+
+export function FormulaireRendezVous({
+  mode = 'public',
+}: FormulaireRendezVousProps = {}) {
   const [step, setStep] = useState(1);
   const [reference, setReference] = useState<string | null>(null);
 
@@ -42,7 +54,10 @@ export function FormulaireRendezVous() {
     defaultValues: { description: '' },
   });
 
-  const { mutateAsync, isPending } = useAjouterRendezVousMutation();
+  const publicMutation = useAjouterRendezVousMutation();
+  const adminMutation = useAjouterRendezVousManuelMutation();
+  const { mutateAsync, isPending } =
+    mode === 'admin' ? adminMutation : publicMutation;
 
   const next = async () => {
     const ok = await methods.trigger(FIELDS_PER_STEP[step]);
@@ -69,7 +84,12 @@ export function FormulaireRendezVous() {
   const submit = methods.handleSubmit(async (data) => {
     const result = await mutateAsync(data);
     if (result.success && result.data) {
-      setReference(result.data.reference);
+      // Public retourne { reference, id }, admin retourne le RendezVous complet
+      const ref =
+        'reference' in result.data
+          ? (result.data as { reference: string }).reference
+          : '';
+      setReference(ref);
     } else {
       methods.setError('root', { message: result.error ?? 'Erreur inattendue' });
     }
@@ -78,7 +98,7 @@ export function FormulaireRendezVous() {
   if (reference) {
     return (
       <Card className="border-border/50 mx-auto max-w-2xl border p-8">
-        <SuccessRendezVous reference={reference} />
+        <SuccessRendezVous reference={reference} mode={mode} />
       </Card>
     );
   }
@@ -87,7 +107,7 @@ export function FormulaireRendezVous() {
     <FormProvider {...methods}>
       <Card className="border-border/50 flex w-full flex-col-reverse border md:grid md:grid-cols-[260px_1fr] md:divide-x lg:grid-cols-[320px_1fr]">
         <aside className="bg-muted/30 p-4 sm:p-6 md:p-8">
-          <InfoAreka />
+          {mode === 'admin' ? <InfoAdminManuel /> : <InfoAreka />}
         </aside>
 
         <form onSubmit={submit} className="flex flex-col p-4 sm:p-6 md:p-8">
@@ -145,7 +165,12 @@ export function FormulaireRendezVous() {
                 {isPending ? (
                   <>
                     <Loader2 size={16} className="animate-spin" />
-                    Envoi...
+                    {mode === 'admin' ? 'Création...' : 'Envoi...'}
+                  </>
+                ) : mode === 'admin' ? (
+                  <>
+                    <Save size={16} />
+                    Créer le rendez-vous
                   </>
                 ) : (
                   <>
