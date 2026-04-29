@@ -38,6 +38,14 @@ export async function envoyerSmsOctopush(params: OctopushSendParams): Promise<
     return { success: false, error: `Numéro invalide : ${params.to}` };
   }
 
+  // Octopush rejette tout SMS sans la mention "STOP au 30101" (code 121),
+  // même avec purpose=alerting, tant que le compte n'est pas validé en mode
+  // transactionnel pur. À retirer dès qu'Octopush valide notre cas d'usage.
+  const text = ajouterMentionStop(params.text);
+  if (text.length > 160) {
+    console.warn(`[octopush] SMS long (${text.length} chars) — facturation possible en multi-SMS`);
+  }
+
   try {
     const res = await fetch(`${OCTOPUSH_BASE}/v1/public/sms-campaign/send`, {
       method: 'POST',
@@ -48,7 +56,7 @@ export async function envoyerSmsOctopush(params: OctopushSendParams): Promise<
       },
       body: JSON.stringify({
         recipients: [{ phone_number: phone }],
-        text: params.text,
+        text,
         type: 'sms_premium',
         purpose: 'alerting',
         sender: params.sender ?? defaultSender,
@@ -67,6 +75,11 @@ export async function envoyerSmsOctopush(params: OctopushSendParams): Promise<
     console.error('[octopush] Network error', error);
     return { success: false, error: 'Erreur réseau Octopush' };
   }
+}
+
+function ajouterMentionStop(text: string): string {
+  if (text.includes('STOP au 30101')) return text;
+  return `${text} STOP au 30101`;
 }
 
 /** Convertit un numéro FR vers le format E.164 (+33XXXXXXXXX). */
