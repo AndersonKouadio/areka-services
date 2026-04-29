@@ -43,13 +43,13 @@ export function TourneeView() {
     queryError instanceof Error ? queryError.message : queryError ? 'Erreur de chargement' : null;
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[auto_1fr]">
-      <div className="w-full lg:w-auto">
+    <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
+      <div className="w-full">
         <Calendar
           value={dateValue}
           onChange={setDateValue}
           aria-label="Date de la tournée"
-          className="w-full lg:w-auto"
+          className="w-full"
         >
           <Calendar.Header>
             <Calendar.NavButton slot="previous" />
@@ -61,7 +61,7 @@ export function TourneeView() {
           <Calendar.Grid>
             <Calendar.GridHeader>
               {(d) => (
-                <Calendar.HeaderCell className="text-foreground/70 text-xs font-semibold uppercase">
+                <Calendar.HeaderCell className="text-foreground/80 font-medium">
                   {d}
                 </Calendar.HeaderCell>
               )}
