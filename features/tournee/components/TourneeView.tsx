@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
 import { Calendar } from '@heroui/react';
 import {
   type DateValue,
@@ -13,6 +14,16 @@ import { calculerTourneeJour } from '../actions/calculer-tournee.action';
 import { ChipType } from '@/features/rendez-vous/components/admin/ChipStatut';
 import { formaterCreneau } from '@/features/planning/utils/planning.utils';
 import type { TourneeJour } from '../types/tournee.type';
+
+// Leaflet exige `window` — on désactive le SSR pour ce composant.
+const TourneeMap = dynamic(() => import('./TourneeMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-muted/30 border-border/50 text-foreground/50 flex h-[400px] items-center justify-center rounded-xl border text-sm">
+      <Loader2 size={16} className="mr-2 animate-spin" /> Chargement de la carte...
+    </div>
+  ),
+});
 
 export function TourneeView() {
   const [dateValue, setDateValue] = useState<DateValue | null>(
@@ -146,6 +157,8 @@ function TourneeResultats({ tournee }: { tournee: TourneeJour }) {
           </ul>
         </div>
       )}
+
+      {tournee.rdvs.length > 0 && <TourneeMap tournee={tournee} />}
 
       {tournee.rdvs.length > 0 && (
         <ol className="space-y-2">
