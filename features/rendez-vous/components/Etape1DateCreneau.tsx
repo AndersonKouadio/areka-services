@@ -99,7 +99,7 @@ export function Etape1DateCreneau() {
             <div className="border-areka-coral/30 bg-areka-coral/5 mt-3 rounded-2xl border p-4 text-sm">
               <p className="text-areka-coral font-medium">Service temporairement indisponible.</p>
               <p className="text-foreground/60 mt-1 text-xs">
-                Réessayez dans un instant ou appelez-nous au 07 69 40 10 93.
+                Réessayez dans un instant ou appelez-nous au +33 7 69 40 10 93.
               </p>
             </div>
           )}

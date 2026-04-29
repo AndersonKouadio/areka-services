@@ -60,7 +60,7 @@ export function InfoAreka() {
             href="tel:+33769401093"
             className="hover:text-areka-orange transition"
           >
-            07 69 40 10 93
+            +33 7 69 40 10 93
           </a>
         </div>
         <div className="flex items-start gap-2">

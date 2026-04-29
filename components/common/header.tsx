@@ -28,15 +28,9 @@ export function Header() {
             aria-label="Appeler Areka Services"
           >
             <Phone size={16} />
-            <span className="hidden sm:inline">07 69 40 10 93</span>
+            <span className="hidden sm:inline">+33 7 69 40 10 93</span>
             <span className="sm:hidden">Appeler</span>
           </a>
-          <Link
-            href="/auth/sign-in"
-            className="text-foreground/60 hover:text-foreground hidden text-sm transition sm:inline"
-          >
-            Espace pro
-          </Link>
         </div>
       </div>
     </header>

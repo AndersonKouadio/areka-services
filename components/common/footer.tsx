@@ -23,7 +23,7 @@ export function Footer() {
               className="hover:text-areka-orange flex items-center gap-2 transition"
             >
               <Phone size={16} className="text-areka-navy" />
-              07 69 40 10 93
+              +33 7 69 40 10 93
             </a>
             <a
               href="mailto:arekaservices@gmail.com"
@@ -46,12 +46,6 @@ export function Footer() {
               className="hover:text-areka-orange block transition"
             >
               Prendre rendez-vous
-            </Link>
-            <Link
-              href="/auth/sign-in"
-              className="hover:text-areka-orange block transition"
-            >
-              Espace pro
             </Link>
           </div>
         </div>
