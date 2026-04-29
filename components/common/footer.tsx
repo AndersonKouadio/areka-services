@@ -42,7 +42,7 @@ export function Footer() {
           <h3 className="font-semibold">Liens</h3>
           <div className="mt-3 space-y-2 text-sm">
             <Link
-              href="/rendez-vous"
+              href="/"
               className="hover:text-areka-orange block transition"
             >
               Prendre rendez-vous

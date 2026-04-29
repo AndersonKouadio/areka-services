@@ -58,7 +58,7 @@ export function Etape3Coordonnees() {
           autoComplete="email"
           autoCapitalize="off"
           spellCheck={false}
-          placeholder="marie.dupont@example.com"
+          placeholder="marie.dupont@exemple.fr"
           className="text-base"
         />
         {errors.clientEmail?.message && (

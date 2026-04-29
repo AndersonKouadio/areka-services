@@ -10,7 +10,7 @@ export const metadata = {
 };
 
 export default async function QrCodePage() {
-  const targetUrl = `${PUBLIC_URL}/rendez-vous`;
+  const targetUrl = `${PUBLIC_URL}/`;
   const dataUrl = await genererQrCodeDataUrl(targetUrl, 600);
 
   return (

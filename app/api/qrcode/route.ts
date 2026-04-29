@@ -30,7 +30,8 @@ export async function GET(request: Request) {
   }
 
   // ETag déterministe — le QR est immuable pour un (url, size) donné
-  const url = `${PUBLIC_URL}/rendez-vous`;
+  // Pointe vers la racine : la home page héberge directement le formulaire RDV.
+  const url = `${PUBLIC_URL}/`;
   const etag = `"${crypto
     .createHash('sha256')
     .update(`${url}:${size}`)
