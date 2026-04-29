@@ -40,12 +40,15 @@ export async function calculerTourneeJour(date: Date): Promise<TourneeJour> {
     orderBy: { creneau: 'asc' },
   });
 
-  // Géocodage en parallèle (cache mémoire dans openroute.ts évite les ré-appels)
+  // Priorité aux coords stockées en DB (capturées via l'autocomplete à la création).
+  // Fallback sur le geocoding lazy pour les RDV legacy sans coords.
   const geocoded = await Promise.all(
-    rdvs.map(async (r) => ({
-      rdv: r,
-      coords: await geocoderAdresse(r.clientAdresse),
-    }))
+    rdvs.map(async (r) => {
+      if (r.latitude != null && r.longitude != null) {
+        return { rdv: r, coords: { lat: r.latitude, lng: r.longitude } };
+      }
+      return { rdv: r, coords: await geocoderAdresse(r.clientAdresse) };
+    })
   );
 
   const avecCoords = geocoded.filter((g) => g.coords !== null) as {

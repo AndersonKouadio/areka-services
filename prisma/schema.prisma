@@ -87,6 +87,12 @@ model RendezVous {
   clientEmail     String
   clientTelephone String
   clientAdresse   String
+  // Complément d'adresse facultatif (étage, bâtiment, code, etc.)
+  clientAdresseComplement String?
+  // Coordonnées géocodées via OpenRouteService Pelias.
+  // Nullable : RDV legacy sans coords + fallback si geocoding échoue.
+  latitude        Float?
+  longitude       Float?
 
   // RDV
   type            TypeIntervention

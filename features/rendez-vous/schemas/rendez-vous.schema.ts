@@ -42,6 +42,18 @@ export const createRendezVousSchema = z.object({
     .trim()
     .min(5, 'Adresse trop courte')
     .max(300, 'Adresse trop longue'),
+  // Complément d'adresse (étage, bâtiment, code interphone, etc.) — optionnel.
+  clientAdresseComplement: z
+    .string()
+    .trim()
+    .max(200, 'Complément trop long')
+    .optional()
+    .or(z.literal('')),
+  // Coordonnées capturées via l'autocomplete OpenRouteService.
+  // Nullables : si l'utilisateur saisit du texte libre (sans cliquer une suggestion),
+  // les coords resteront null et le geocoding lazy de la tournée prendra le relais.
+  latitude: z.number().min(-90).max(90).nullable().optional(),
+  longitude: z.number().min(-180).max(180).nullable().optional(),
   type: z.nativeEnum(TypeIntervention),
   description: z
     .string()

@@ -1,8 +1,9 @@
 'use client';
 
 import { useFormContext } from 'react-hook-form';
-import { TextField, Input, Label, FieldError, TextArea } from '@heroui/react';
+import { TextField, Input, Label, FieldError } from '@heroui/react';
 import type { CreateRendezVousDTO } from '../schemas/rendez-vous.schema';
+import { AdresseAutocomplete } from './AdresseAutocomplete';
 
 export function Etape3Coordonnees() {
   const {
@@ -81,19 +82,20 @@ export function Etape3Coordonnees() {
         )}
       </TextField>
 
-      <div className="space-y-2">
-        <Label htmlFor="adresse">Adresse complète</Label>
-        <TextArea
-          id="adresse"
-          {...register('clientAdresse')}
-          autoComplete="street-address"
-          placeholder="12 rue de la Paix, 49300 Cholet"
-          className="min-h-20 w-full"
+      <AdresseAutocomplete />
+
+      <TextField isInvalid={!!errors.clientAdresseComplement}>
+        <Label>Complément d&apos;adresse <span className="text-foreground/50 font-normal">(optionnel)</span></Label>
+        <Input
+          {...register('clientAdresseComplement')}
+          placeholder="Bât. A, 3e étage, code 1234B…"
+          autoComplete="address-line2"
+          className="text-base"
         />
-        {errors.clientAdresse?.message && (
-          <FieldError>{errors.clientAdresse.message}</FieldError>
+        {errors.clientAdresseComplement?.message && (
+          <FieldError>{errors.clientAdresseComplement.message}</FieldError>
         )}
-      </div>
+      </TextField>
     </div>
   );
 }
