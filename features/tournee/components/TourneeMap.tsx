@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import { formaterCreneau } from '@/features/planning/utils/planning.utils';
 import type { TourneeJour } from '../types/tournee.type';
 
@@ -34,6 +34,14 @@ export default function TourneeMap({ tournee }: TourneeMapProps) {
     );
   }
 
+  // Tracé du trajet : départ → 1 → 2 → 3 ... (ligne droite, pas de route réelle).
+  // Pour passer en vraie route routière plus tard : remplacer ces coords par
+  // celles renvoyées par ORS Directions (/v2/directions/driving-car).
+  const routePath: [number, number][] = [
+    [tournee.depart.lat, tournee.depart.lng],
+    ...points.map((r) => [r.coords!.lat, r.coords!.lng] as [number, number]),
+  ];
+
   return (
     <div className="border-border/50 bg-card overflow-hidden rounded-xl border">
       <MapContainer
@@ -45,6 +53,15 @@ export default function TourneeMap({ tournee }: TourneeMapProps) {
         <TileLayer
           attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Polyline
+          positions={routePath}
+          pathOptions={{
+            color: COLOR_DEPART,
+            weight: 3,
+            opacity: 0.7,
+            dashArray: '8 6',
+          }}
         />
         <Marker
           position={[tournee.depart.lat, tournee.depart.lng]}

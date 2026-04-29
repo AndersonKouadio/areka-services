@@ -44,11 +44,12 @@ export function TourneeView() {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[auto_1fr]">
-      <div>
+      <div className="w-full lg:w-auto">
         <Calendar
           value={dateValue}
           onChange={setDateValue}
           aria-label="Date de la tournée"
+          className="w-full lg:w-auto"
         >
           <Calendar.Header>
             <Calendar.NavButton slot="previous" />
@@ -102,7 +103,6 @@ function TourneeResultats({ tournee }: { tournee: TourneeJour }) {
       <div className="bg-card border-border/50 flex items-center justify-between rounded-xl border p-4">
         <p className="text-sm">
           <strong>{totalRdvs}</strong> rendez-vous
-          {totalRdvs > 1 ? 's' : ''}
         </p>
         {tournee.rdvs.length > 0 && (
           <p className="text-foreground/60 text-xs">
