@@ -54,6 +54,8 @@ export const createRendezVousSchema = z.object({
   // les coords resteront null et le geocoding lazy de la tournée prendra le relais.
   latitude: z.number().min(-90).max(90).nullable().optional(),
   longitude: z.number().min(-180).max(180).nullable().optional(),
+  // Commune extraite de Pelias — utilisée pour le groupement par zone tournée.
+  clientCommune: z.string().trim().max(100).nullable().optional(),
   type: z.nativeEnum(TypeIntervention),
   description: z
     .string()

@@ -60,7 +60,11 @@ export function TourneeView() {
           </Calendar.Header>
           <Calendar.Grid>
             <Calendar.GridHeader>
-              {(d) => <Calendar.HeaderCell>{d}</Calendar.HeaderCell>}
+              {(d) => (
+                <Calendar.HeaderCell className="text-foreground/70 text-xs font-semibold uppercase">
+                  {d}
+                </Calendar.HeaderCell>
+              )}
             </Calendar.GridHeader>
             <Calendar.GridBody>
               {(d) => <Calendar.Cell date={d} />}
@@ -69,7 +73,7 @@ export function TourneeView() {
         </Calendar>
       </div>
 
-      <div>
+      <div className="min-w-0">
         {loading && (
           <div className="text-foreground/60 flex items-center justify-center gap-2 py-12 text-sm">
             <Loader2 size={16} className="animate-spin" />
@@ -160,6 +164,8 @@ function TourneeResultats({ tournee }: { tournee: TourneeJour }) {
 
       {tournee.rdvs.length > 0 && <TourneeMap tournee={tournee} />}
 
+      {tournee.rdvs.length > 0 && <SyntheseParZone tournee={tournee} />}
+
       {tournee.rdvs.length > 0 && (
         <ol className="space-y-2">
           {tournee.rdvs.map((r) => {
@@ -233,6 +239,70 @@ function TourneeResultats({ tournee }: { tournee: TourneeJour }) {
           })}
         </ol>
       )}
+    </div>
+  );
+}
+
+/**
+ * Panel "Synthèse par zone" : regroupe les RDV par commune (clientCommune
+ * extraite via l'autocomplete Pelias). Les RDV legacy sans commune connue
+ * sont rangés dans une catégorie dédiée.
+ */
+function SyntheseParZone({ tournee }: { tournee: TourneeJour }) {
+  const groupes = new Map<string, { count: number; ordres: number[]; distance: number }>();
+
+  for (const r of tournee.rdvs) {
+    const key = r.rdv.clientCommune?.trim() || '__inconnue__';
+    const g = groupes.get(key) ?? { count: 0, ordres: [], distance: 0 };
+    g.count += 1;
+    g.ordres.push(r.ordre + 1);
+    g.distance += r.distanceDepuisPrecedent;
+    groupes.set(key, g);
+  }
+
+  if (groupes.size === 0) return null;
+
+  // Tri : commune connues d'abord, par nombre de RDV décroissant ; "inconnues" en dernier.
+  const entries = [...groupes.entries()].sort(([ka, ga], [kb, gb]) => {
+    if (ka === '__inconnue__') return 1;
+    if (kb === '__inconnue__') return -1;
+    return gb.count - ga.count;
+  });
+
+  return (
+    <div className="bg-card border-border/50 rounded-xl border p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <MapPin size={16} className="text-areka-orange" />
+        <h3 className="text-sm font-semibold">Synthèse par zone</h3>
+        <span className="text-foreground/60 text-xs">
+          {entries.length} {entries.length > 1 ? 'communes' : 'commune'}
+        </span>
+      </div>
+      <ul className="space-y-2">
+        {entries.map(([key, g]) => {
+          const isUnknown = key === '__inconnue__';
+          return (
+            <li
+              key={key}
+              className="border-border/30 flex items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm"
+            >
+              <div className="min-w-0 flex-1">
+                <p className={isUnknown ? 'text-foreground/60 italic' : 'font-medium'}>
+                  {isUnknown ? 'Commune inconnue' : key}
+                </p>
+                <p className="text-foreground/60 mt-0.5 text-xs">
+                  {g.count} RDV · arrêts #{g.ordres.join(', #')}
+                </p>
+              </div>
+              {!isUnknown && g.distance > 0 && (
+                <span className="text-foreground/60 shrink-0 text-xs font-medium">
+                  ≈ {Math.round(g.distance)} km
+                </span>
+              )}
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

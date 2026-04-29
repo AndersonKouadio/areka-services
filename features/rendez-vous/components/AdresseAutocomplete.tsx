@@ -58,16 +58,19 @@ export function AdresseAutocomplete() {
     setValue('clientAdresse', s.label, { shouldValidate: true, shouldDirty: true });
     setValue('latitude', s.coords.lat, { shouldDirty: true });
     setValue('longitude', s.coords.lng, { shouldDirty: true });
+    setValue('clientCommune', s.commune, { shouldDirty: true });
     setOpen(false);
     inputRef.current?.blur();
   };
 
   // Si l'utilisateur modifie l'adresse APRÈS sélection, on invalide les coords
-  // (sinon on enverrait des coords qui ne correspondent plus au texte saisi)
+  // ET la commune (sinon on enverrait des données qui ne correspondent plus au
+  // texte saisi).
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (latitude != null) {
       setValue('latitude', null, { shouldDirty: true });
       setValue('longitude', null, { shouldDirty: true });
+      setValue('clientCommune', null, { shouldDirty: true });
     }
     register('clientAdresse').onChange(e);
     setOpen(true);

@@ -33,6 +33,8 @@ export interface SuggestionAdresse {
   coords: Coordinates;
   /** Identifiant Pelias (gid) — clé stable pour key React */
   id: string;
+  /** Commune extraite de Pelias (properties.locality), ex: "Cholet" */
+  commune: string | null;
 }
 
 /**
@@ -197,7 +199,12 @@ export async function autocompleteAdresse(
 
   let data: {
     features?: {
-      properties?: { label?: string; gid?: string };
+      properties?: {
+        label?: string;
+        gid?: string;
+        locality?: string;
+        localadmin?: string;
+      };
       geometry?: { coordinates?: [number, number] };
     }[];
   };
@@ -215,10 +222,14 @@ export async function autocompleteAdresse(
     const coords = f.geometry?.coordinates;
     const label = f.properties?.label;
     if (!coords || !label) return [];
+    // Pelias remplit `locality` (commune) sur les adresses précises ; sur les
+    // résultats type "rue isolée" il fallback sur `localadmin`.
+    const commune = f.properties?.locality ?? f.properties?.localadmin ?? null;
     return [{
       label,
       coords: { lng: coords[0], lat: coords[1] },
       id: f.properties?.gid ?? `pelias-${idx}-${label}`,
+      commune,
     }];
   });
 }

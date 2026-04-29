@@ -93,6 +93,9 @@ model RendezVous {
   // Nullable : RDV legacy sans coords + fallback si geocoding échoue.
   latitude        Float?
   longitude       Float?
+  // Commune extraite de Pelias (properties.locality) au moment de la sélection
+  // dans l'autocomplete. Sert au groupement par zone sur la page tournée.
+  clientCommune   String?
 
   // RDV
   type            TypeIntervention
