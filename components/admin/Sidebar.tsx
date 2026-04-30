@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link, { useLinkStatus } from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
@@ -10,7 +10,9 @@ import {
   QrCode,
   Settings,
   LogOut,
+  Loader2,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
@@ -50,7 +52,6 @@ export function Sidebar({ user }: SidebarProps) {
 
       <nav className="flex-1 space-y-0.5 px-3 py-4">
         {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
           const active = isActive(item.href, item.exact);
           return (
             <Link
@@ -63,8 +64,7 @@ export function Sidebar({ user }: SidebarProps) {
                   : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
               )}
             >
-              <Icon size={18} />
-              {item.label}
+              <SidebarItemContent Icon={item.icon} label={item.label} />
             </Link>
           );
         })}
@@ -88,5 +88,19 @@ export function Sidebar({ user }: SidebarProps) {
         </button>
       </div>
     </aside>
+  );
+}
+
+function SidebarItemContent({ Icon, label }: { Icon: LucideIcon; label: string }) {
+  const { pending } = useLinkStatus();
+  return (
+    <>
+      {pending ? (
+        <Loader2 size={18} className="animate-spin" />
+      ) : (
+        <Icon size={18} />
+      )}
+      {label}
+    </>
   );
 }

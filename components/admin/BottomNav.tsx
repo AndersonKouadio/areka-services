@@ -1,8 +1,9 @@
 'use client';
 
-import Link from 'next/link';
+import Link, { useLinkStatus } from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, CalendarDays, Map, Menu } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, Map, Menu, Loader2 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface BottomNavProps {
@@ -29,7 +30,6 @@ export function BottomNav({ onMenuOpen }: BottomNavProps) {
     >
       <div className="mx-auto grid max-w-md grid-cols-4">
         {PRIMARY_ITEMS.map((item) => {
-          const Icon = item.icon;
           const active = isActive(item.href, item.exact);
           return (
             <Link
@@ -43,11 +43,11 @@ export function BottomNav({ onMenuOpen }: BottomNavProps) {
                   : 'text-foreground/55 hover:text-foreground active:scale-95'
               )}
             >
-              {active && (
-                <span className="bg-areka-orange absolute inset-x-6 top-0 h-0.5 rounded-full" />
-              )}
-              <Icon size={22} strokeWidth={active ? 2.4 : 2} />
-              <span className="leading-none">{item.label}</span>
+              <NavItemContent
+                label={item.label}
+                Icon={item.icon}
+                active={active}
+              />
             </Link>
           );
         })}
@@ -62,5 +62,41 @@ export function BottomNav({ onMenuOpen }: BottomNavProps) {
         </button>
       </div>
     </nav>
+  );
+}
+
+/**
+ * Doit être un descendant d'un <Link> pour que useLinkStatus().pending
+ * reflète bien la transition vers CE lien-là (pas un autre).
+ *
+ * Pendant la nav : indicateur orange en haut + icône remplacée par un spinner.
+ * Donne un feedback visuel immédiat au tap, même si le serveur prend ~1s.
+ */
+function NavItemContent({
+  label,
+  Icon,
+  active,
+}: {
+  label: string;
+  Icon: LucideIcon;
+  active: boolean;
+}) {
+  const { pending } = useLinkStatus();
+  const showOrangeBar = active || pending;
+
+  return (
+    <>
+      {showOrangeBar && (
+        <span className="bg-areka-orange absolute inset-x-6 top-0 h-0.5 rounded-full" />
+      )}
+      {pending ? (
+        <Loader2 size={22} className="text-areka-orange animate-spin" />
+      ) : (
+        <Icon size={22} strokeWidth={active ? 2.4 : 2} />
+      )}
+      <span className={cn('leading-none', pending && 'text-areka-orange')}>
+        {label}
+      </span>
+    </>
   );
 }
