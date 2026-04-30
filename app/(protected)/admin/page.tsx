@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { obtenirStatsRendezVous } from '@/features/rendez-vous/actions/stats.action';
-import { obtenirTousRendezVous } from '@/features/rendez-vous/actions/rendez-vous.actions';
+import { obtenirTousRendezVous } from '@/features/rendez-vous/data/rendez-vous.data';
 import { obtenirChartsData } from '@/features/rendez-vous/actions/charts.action';
 import { KpiCards } from '@/features/rendez-vous/components/admin/KpiCards';
 import { RendezVousRecents } from '@/features/rendez-vous/components/admin/RendezVousRecents';

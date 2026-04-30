@@ -1,5 +1,5 @@
-import { obtenirPlanningHebdo } from '@/features/planning/actions/planning.actions';
-import { obtenirToursJoursSpeciaux } from '@/features/planning/actions/jour-special.actions';
+import { obtenirPlanningHebdo } from '@/features/planning/data/planning.data';
+import { obtenirToursJoursSpeciaux } from '@/features/planning/data/jour-special.data';
 import { PlanningHebdoSection } from '@/features/planning/components/PlanningHebdoSection';
 import { JoursSpeciauxList } from '@/features/planning/components/JoursSpeciauxList';
 

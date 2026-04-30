@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { obtenirToursJoursSpeciaux } from '@/features/planning/actions/jour-special.actions';
+import { obtenirToursJoursSpeciaux } from '@/features/planning/data/jour-special.data';
 
 /**
  * GET /api/jours-speciaux?dateDebut=...&dateFin=...&actif=true

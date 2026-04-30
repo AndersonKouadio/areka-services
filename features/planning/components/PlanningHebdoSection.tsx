@@ -5,7 +5,7 @@ import { JourCard } from './JourCard';
 import { usePlanningHebdoQuery } from '../queries/planning-list.query';
 
 interface Props {
-  initialData: Awaited<ReturnType<typeof import('../actions/planning.actions').obtenirPlanningHebdo>>;
+  initialData: Awaited<ReturnType<typeof import('../data/planning.data').obtenirPlanningHebdo>>;
 }
 
 export function PlanningHebdoSection({ initialData }: Props) {

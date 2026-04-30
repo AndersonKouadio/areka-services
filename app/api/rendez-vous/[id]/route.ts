@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { obtenirRendezVousParId } from '@/features/rendez-vous/actions/rendez-vous.actions';
+import { obtenirRendezVousParId } from '@/features/rendez-vous/data/rendez-vous.data';
 
 /**
  * GET /api/rendez-vous/{id}

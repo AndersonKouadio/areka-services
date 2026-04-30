@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { obtenirPlanningHebdo } from '@/features/planning/actions/planning.actions';
+import { obtenirPlanningHebdo } from '@/features/planning/data/planning.data';
 
 /**
  * GET /api/planning

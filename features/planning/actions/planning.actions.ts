@@ -1,4 +1,4 @@
-import 'server-only';
+'use server';
 
 import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
@@ -13,16 +13,10 @@ async function requireAdmin() {
   return session;
 }
 
-/** Lit toute la config hebdomadaire (7 records, un par jour). */
-export async function obtenirPlanningHebdo(): Promise<Planning[]> {
-  return prisma.planning.findMany({ orderBy: { jourSemaine: 'asc' } });
-}
-
 /** Met à jour la config d'un jour de la semaine (admin). */
 export async function modifierPlanningJour(
   input: unknown
 ): Promise<ActionResponse<Planning>> {
-  'use server';
   await requireAdmin();
 
   const parsed = updatePlanningSchema.safeParse(input);

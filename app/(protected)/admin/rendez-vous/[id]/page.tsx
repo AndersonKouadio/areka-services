@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
-import { obtenirRendezVousParId } from '@/features/rendez-vous/actions/rendez-vous.actions';
+import { obtenirRendezVousParId } from '@/features/rendez-vous/data/rendez-vous.data';
 import { DetailRendezVous } from '@/features/rendez-vous/components/admin/DetailRendezVous';
 import { ActionsRendezVous } from '@/features/rendez-vous/components/admin/ActionsRendezVous';
 

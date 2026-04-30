@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { obtenirTousRendezVous } from '@/features/rendez-vous/actions/rendez-vous.actions';
+import { obtenirTousRendezVous } from '@/features/rendez-vous/data/rendez-vous.data';
 import type { IRendezVousParams } from '@/features/rendez-vous/types/rendez-vous.type';
 import type { StatutRDV, TypeIntervention, SourceRDV } from '@prisma/client';
 
