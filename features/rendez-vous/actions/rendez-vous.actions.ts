@@ -1,10 +1,9 @@
 'use server';
 
-import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { startOfDay, endOfDay } from 'date-fns';
 import prisma from '@/lib/prisma';
-import { auth } from '@/lib/auth';
+import { getSession } from '@/lib/auth-session';
 import {
   createRendezVousSchema,
   updateRendezVousSchema,
@@ -17,7 +16,7 @@ import type { ActionResponse, PaginatedResponse } from '@/types/api.type';
 import type { RendezVous } from '@prisma/client';
 
 async function requireAdmin() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session) throw new Error('Non autorisé');
   return session;
 }

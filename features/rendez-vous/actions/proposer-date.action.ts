@@ -1,9 +1,8 @@
 'use server';
 
-import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
-import { auth } from '@/lib/auth';
+import { getSession } from '@/lib/auth-session';
 import { proposerDateRendezVousSchema } from '../schemas/rendez-vous.schema';
 import { estCreneauOuvert } from '@/features/planning/actions/creneaux-resolver.action';
 import { notifierRendezVous } from '@/features/notifications/actions/notifier-rdv.action';
@@ -14,7 +13,7 @@ export async function proposerAutreDateRendezVous(
   id: string,
   input: unknown
 ): Promise<ActionResponse<RendezVous>> {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session) return { success: false, error: 'Non autorisé' };
 
   const parsed = proposerDateRendezVousSchema.safeParse(input);

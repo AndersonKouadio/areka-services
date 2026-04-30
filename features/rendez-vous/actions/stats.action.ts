@@ -1,9 +1,8 @@
 'use server';
 
-import { headers } from 'next/headers';
 import { startOfDay, endOfDay, startOfWeek, endOfWeek } from 'date-fns';
 import prisma from '@/lib/prisma';
-import { auth } from '@/lib/auth';
+import { getSession } from '@/lib/auth-session';
 
 export interface StatsRendezVous {
   total: number;
@@ -13,7 +12,7 @@ export interface StatsRendezVous {
 }
 
 export async function obtenirStatsRendezVous(): Promise<StatsRendezVous> {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session) throw new Error('Non autorisé');
 
   const now = new Date();

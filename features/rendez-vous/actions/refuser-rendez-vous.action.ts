@@ -1,9 +1,8 @@
 'use server';
 
-import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
-import { auth } from '@/lib/auth';
+import { getSession } from '@/lib/auth-session';
 import { refuserRendezVousSchema } from '../schemas/rendez-vous.schema';
 import { notifierRendezVous } from '@/features/notifications/actions/notifier-rdv.action';
 import type { ActionResponse } from '@/types/api.type';
@@ -13,7 +12,7 @@ export async function refuserRendezVous(
   id: string,
   input: unknown
 ): Promise<ActionResponse<RendezVous>> {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session) return { success: false, error: 'Non autorisé' };
 
   const parsed = refuserRendezVousSchema.safeParse(input);

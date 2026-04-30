@@ -1,5 +1,4 @@
-import { headers } from 'next/headers';
-import { auth } from '@/lib/auth';
+import { getSession } from '@/lib/auth-session';
 import { AdminShell } from '@/components/admin/AdminShell';
 
 export default async function AdminLayout({
@@ -7,7 +6,7 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session) return null; // (protected) layout already redirects
 
   return (

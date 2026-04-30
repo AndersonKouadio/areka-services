@@ -43,7 +43,10 @@ export default function TourneeMap({ tournee }: TourneeMapProps) {
   ];
 
   return (
-    <div className="border-border/50 bg-card overflow-hidden rounded-xl border">
+    // isolation:isolate crée un stacking context : les z-index internes de
+    // Leaflet (controls z-1000, panes z-400) restent confinés à ce conteneur
+    // et ne couvrent plus la BottomNav (z-40) ni le MobileDrawer (z-50).
+    <div className="border-border/50 bg-card relative isolate overflow-hidden rounded-xl border">
       <MapContainer
         center={[tournee.depart.lat, tournee.depart.lng]}
         zoom={11}

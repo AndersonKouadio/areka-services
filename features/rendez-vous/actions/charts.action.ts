@@ -1,9 +1,8 @@
 'use server';
 
-import { headers } from 'next/headers';
 import { startOfDay, subDays, format } from 'date-fns';
 import prisma from '@/lib/prisma';
-import { auth } from '@/lib/auth';
+import { getSession } from '@/lib/auth-session';
 import type { StatutRDV, TypeIntervention } from '../types/enums';
 
 export interface DailyPoint {
@@ -38,7 +37,7 @@ export interface ChartsData {
  * 1 query findMany large + agrégation côté JS pour éviter 4-5 round-trips.
  */
 export async function obtenirChartsData(): Promise<ChartsData> {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session) throw new Error('Non autorisé');
 
   const today = startOfDay(new Date());

@@ -8,9 +8,14 @@ const geistSans = Geist({
   subsets: ['latin'],
 });
 
+// Mono utilisé uniquement sur quelques composants (références RDV, heures
+// dans les tables admin) → on désactive le preload eager pour éviter les
+// warnings "preloaded but not used" sur les pages qui n'en ont pas besoin.
+// La font reste chargée à la demande (display:swap par défaut).
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+  preload: false,
 });
 
 const APP_NAME = 'Areka Services';
