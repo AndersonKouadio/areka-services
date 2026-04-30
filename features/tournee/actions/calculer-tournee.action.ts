@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import { startOfDay, endOfDay } from 'date-fns';
 import prisma from '@/lib/prisma';

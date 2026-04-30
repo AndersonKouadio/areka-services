@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
@@ -22,6 +22,7 @@ export async function obtenirPlanningHebdo(): Promise<Planning[]> {
 export async function modifierPlanningJour(
   input: unknown
 ): Promise<ActionResponse<Planning>> {
+  'use server';
   await requireAdmin();
 
   const parsed = updatePlanningSchema.safeParse(input);

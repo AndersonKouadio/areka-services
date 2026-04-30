@@ -10,7 +10,7 @@ import {
   today,
 } from '@internationalized/date';
 import { Loader2, MapPin, Clock, Phone, AlertTriangle, Navigation, Mail } from 'lucide-react';
-import { calculerTourneeJour } from '../actions/calculer-tournee.action';
+import { tourneeAPI } from '../apis/tournee.api';
 import { ChipType } from '@/features/rendez-vous/components/admin/ChipStatut';
 import { formaterCreneau } from '@/features/planning/utils/planning.utils';
 import type { TourneeJour } from '../types/tournee.type';
@@ -35,7 +35,7 @@ export function TourneeView() {
 
   const { data: tournee, isLoading: loading, error: queryError } = useQuery({
     queryKey: ['tournee', dateKey],
-    queryFn: () => calculerTourneeJour(dateJS!),
+    queryFn: () => tourneeAPI.obtenirJour(dateJS!),
     enabled: !!dateJS,
     staleTime: 30 * 1000,
   });

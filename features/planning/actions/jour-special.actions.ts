@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
@@ -41,6 +41,7 @@ export async function obtenirToursJoursSpeciaux(
 export async function ajouterJourSpecial(
   input: unknown
 ): Promise<ActionResponse<JourSpecial>> {
+  'use server';
   await requireAdmin();
 
   const parsed = createJourSpecialSchema.safeParse(input);
@@ -70,6 +71,7 @@ export async function modifierJourSpecial(
   id: string,
   input: unknown
 ): Promise<ActionResponse<JourSpecial>> {
+  'use server';
   await requireAdmin();
 
   const parsed = updateJourSpecialSchema.safeParse(input);
@@ -93,6 +95,7 @@ export async function modifierJourSpecial(
 export async function supprimerJourSpecial(
   id: string
 ): Promise<ActionResponse<null>> {
+  'use server';
   await requireAdmin();
   await prisma.jourSpecial.delete({ where: { id } });
   revalidatePath('/admin/parametres');

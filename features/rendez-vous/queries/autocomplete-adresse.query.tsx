@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { autocompleterAdresse } from '../actions/autocomplete-adresse.action';
+import { rendezVousAPI } from '../apis/rendez-vous.api';
 import { rendezVousKeyQuery } from './index.query';
 
 /**
@@ -17,7 +17,7 @@ export const useAdresseAutocompleteQuery = (query: string) => {
   return useQuery({
     queryKey: rendezVousKeyQuery('autocomplete-adresse', trimmed),
     queryFn: async () => {
-      const result = await autocompleterAdresse(trimmed);
+      const result = await rendezVousAPI.autocompleteAdresse(trimmed);
       if (!result.ok) throw new Error(result.error);
       return result.suggestions;
     },

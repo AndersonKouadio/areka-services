@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import { revalidatePath } from 'next/cache';
 import { startOfDay, endOfDay } from 'date-fns';
@@ -27,6 +27,7 @@ async function requireAdmin() {
 export async function ajouterRendezVous(
   input: unknown
 ): Promise<ActionResponse<{ reference: string; id: string }>> {
+  'use server';
   const parsed = createRendezVousSchema.safeParse(input);
   if (!parsed.success) {
     return {
@@ -107,6 +108,7 @@ export async function ajouterRendezVous(
 export async function ajouterRendezVousManuel(
   input: unknown
 ): Promise<ActionResponse<RendezVous>> {
+  'use server';
   await requireAdmin();
 
   const parsed = createRendezVousSchema.safeParse(input);
@@ -200,6 +202,7 @@ export async function modifierRendezVous(
   id: string,
   input: unknown
 ): Promise<ActionResponse<RendezVous>> {
+  'use server';
   await requireAdmin();
 
   const parsed = updateRendezVousSchema.safeParse(input);
@@ -222,6 +225,7 @@ export async function modifierRendezVous(
 export async function supprimerRendezVous(
   id: string
 ): Promise<ActionResponse<null>> {
+  'use server';
   await requireAdmin();
   await prisma.rendezVous.delete({ where: { id } });
   revalidatePath('/admin');

@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { obtenirTousRendezVous } from '../actions/rendez-vous.actions';
+import { rendezVousAPI } from '../apis/rendez-vous.api';
 import { rendezVousKeyQuery } from './index.query';
 import type { IRendezVousParams } from '../types/rendez-vous.type';
 
@@ -15,7 +15,7 @@ const PARAMS: IRendezVousParams = {
 export const useNotificationsPendantesQuery = () =>
   useQuery({
     queryKey: rendezVousKeyQuery('list', PARAMS),
-    queryFn: () => obtenirTousRendezVous(PARAMS),
+    queryFn: () => rendezVousAPI.obtenirTous(PARAMS),
     staleTime: 30 * 1000,
     refetchInterval: 60 * 1000,
     refetchIntervalInBackground: false,

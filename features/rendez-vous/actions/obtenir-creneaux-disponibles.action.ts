@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import { startOfDay, endOfDay } from 'date-fns';
 import prisma from '@/lib/prisma';
@@ -6,7 +6,10 @@ import { resoudreCreneauxOuverts } from '@/features/planning/actions/creneaux-re
 
 /**
  * Renvoie les créneaux encore disponibles pour une date donnée.
- * Action publique (utilisée par le formulaire client).
+ *
+ * Read public exposé via Route Handler GET /api/creneaux-disponibles?date=...
+ * Importé directement par les Server Components / Route Handlers.
+ * Les Client Components passent par la couche apis/ + TanStack Query.
  *
  * Filtre les créneaux ouverts (config Planning + JourSpecial) par les RDV déjà pris.
  */
