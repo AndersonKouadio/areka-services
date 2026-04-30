@@ -69,8 +69,12 @@ export function BottomNav({ onMenuOpen }: BottomNavProps) {
  * Doit être un descendant d'un <Link> pour que useLinkStatus().pending
  * reflète bien la transition vers CE lien-là (pas un autre).
  *
- * Pendant la nav : indicateur orange en haut + icône remplacée par un spinner.
- * Donne un feedback visuel immédiat au tap, même si le serveur prend ~1s.
+ * Convention recommandée par la doc Next.js :
+ * - Icône et spinner toujours rendus (taille fixe 22px) — pas de layout shift.
+ * - Transition opacity avec delay 100ms : si la nav est < 100ms (cache prefetch),
+ *   l'animation ne se déclenche pas et l'utilisateur ne voit aucun flicker.
+ * - Sur prefetch hit, pending est skip de toute façon — le loading.tsx prend
+ *   le relais côté nouvelle page.
  */
 function NavItemContent({
   label,
@@ -82,19 +86,36 @@ function NavItemContent({
   active: boolean;
 }) {
   const { pending } = useLinkStatus();
-  const showOrangeBar = active || pending;
 
   return (
     <>
-      {showOrangeBar && (
+      {(active || pending) && (
         <span className="bg-areka-orange absolute inset-x-6 top-0 h-0.5 rounded-full" />
       )}
-      {pending ? (
-        <Loader2 size={22} className="text-areka-orange animate-spin" />
-      ) : (
-        <Icon size={22} strokeWidth={active ? 2.4 : 2} />
-      )}
-      <span className={cn('leading-none', pending && 'text-areka-orange')}>
+      <span className="relative inline-block size-[22px]">
+        <Icon
+          size={22}
+          strokeWidth={active ? 2.4 : 2}
+          className={cn(
+            'absolute inset-0 transition-opacity duration-200 delay-100',
+            pending && 'opacity-0'
+          )}
+        />
+        <Loader2
+          size={22}
+          aria-hidden
+          className={cn(
+            'text-areka-orange absolute inset-0 animate-spin opacity-0 transition-opacity duration-200 delay-100',
+            pending && 'opacity-100'
+          )}
+        />
+      </span>
+      <span
+        className={cn(
+          'leading-none transition-colors duration-200 delay-100',
+          pending && 'text-areka-orange'
+        )}
+      >
         {label}
       </span>
     </>

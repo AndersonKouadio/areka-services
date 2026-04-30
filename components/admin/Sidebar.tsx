@@ -91,15 +91,32 @@ export function Sidebar({ user }: SidebarProps) {
   );
 }
 
+/**
+ * Pattern recommandé par la doc Next.js :
+ * - Icône + spinner toujours rendus (taille fixe 18px) — pas de layout shift.
+ * - Transition opacity 200ms avec delay 100ms : nav < 100ms = aucun flicker.
+ */
 function SidebarItemContent({ Icon, label }: { Icon: LucideIcon; label: string }) {
   const { pending } = useLinkStatus();
   return (
     <>
-      {pending ? (
-        <Loader2 size={18} className="animate-spin" />
-      ) : (
-        <Icon size={18} />
-      )}
+      <span className="relative inline-block size-[18px] shrink-0">
+        <Icon
+          size={18}
+          className={cn(
+            'absolute inset-0 transition-opacity duration-200 delay-100',
+            pending && 'opacity-0'
+          )}
+        />
+        <Loader2
+          size={18}
+          aria-hidden
+          className={cn(
+            'absolute inset-0 animate-spin opacity-0 transition-opacity duration-200 delay-100',
+            pending && 'opacity-100'
+          )}
+        />
+      </span>
       {label}
     </>
   );
