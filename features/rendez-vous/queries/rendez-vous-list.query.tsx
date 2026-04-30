@@ -9,8 +9,11 @@ export const useRendezVousListQuery = (params?: IRendezVousParams) =>
   useQuery({
     queryKey: rendezVousKeyQuery('list', params),
     queryFn: () => obtenirTousRendezVous(params),
-    staleTime: 30 * 1000,
+    // 2 min — revisiter la page dans cet intervalle utilise le cache pur,
+    // pas de refetch ni spinner. Les mutations (create/update/delete)
+    // invalident explicitement via useInvalidateRendezVousQuery donc on
+    // ne perd jamais la fraîcheur après une action utilisateur.
+    staleTime: 2 * 60 * 1000,
     // Garde la liste précédente affichée pendant le re-fetch (filtres, pagination).
-    // Évite l'effet "page blanche → spinner → liste" à chaque changement de filtre.
     placeholderData: keepPreviousData,
   });
